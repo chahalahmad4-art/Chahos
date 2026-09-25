@@ -1,0 +1,2 @@
+'use strict';
+const returnLink=document.querySelector('[data-return="back"]');if(returnLink){returnLink.addEventListener('click',event=>{if(event.metaKey||event.ctrlKey||event.shiftKey||event.altKey||event.button!==0)return;let internal=false;try{internal=Boolean(document.referrer)&&new URL(document.referrer).origin===location.origin}catch{}if(internal&&history.length>1){event.preventDefault();history.back()}})}

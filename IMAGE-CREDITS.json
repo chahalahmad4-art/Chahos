@@ -1,0 +1,189 @@
+{
+  "license_summary": "Pexels license permits free website and marketing use, modification, and no required attribution. Do not imply endorsement or use as a trademark. Source and download links verified through web search.",
+  "images": [
+    {
+      "sector": "gym",
+      "path": "/workspace/scratch/11670a598ca9/sector-assets/gym.jpg",
+      "source": "https://www.pexels.com/photo/interior-of-modern-fitness-club-with-various-machines-and-equipment-7031705/",
+      "photographer": "Max Vakhtbovych",
+      "size": [
+        1600,
+        1068
+      ],
+      "license": "https://www.pexels.com/license/"
+    },
+    {
+      "sector": "clinic",
+      "path": "/workspace/scratch/11670a598ca9/sector-assets/clinic.jpg",
+      "source": "https://www.pexels.com/photo/interior-design-of-a-medical-clinic-7016405/",
+      "photographer": "enis mekic",
+      "size": [
+        1600,
+        1067
+      ],
+      "license": "https://www.pexels.com/license/"
+    },
+    {
+      "sector": "architecture",
+      "path": "/workspace/scratch/11670a598ca9/sector-assets/architecture.jpg",
+      "source": "https://www.pexels.com/photo/exterior-of-a-modern-building-15316914/",
+      "photographer": "Laura Paredis",
+      "size": [
+        1600,
+        2400
+      ],
+      "license": "https://www.pexels.com/license/"
+    },
+    {
+      "sector": "design",
+      "path": "/workspace/scratch/11670a598ca9/sector-assets/design.jpg",
+      "source": "https://www.pexels.com/photo/display-of-office-supplies-7718676/",
+      "photographer": "MART PRODUCTION",
+      "size": [
+        1600,
+        1067
+      ],
+      "license": "https://www.pexels.com/license/"
+    },
+    {
+      "sector": "fashion",
+      "path": "/workspace/scratch/11670a598ca9/sector-assets/fashion.jpg",
+      "source": "https://www.pexels.com/photo/clothes-hanging-on-the-rack-8346027/",
+      "photographer": "Ron Lach",
+      "size": [
+        1600,
+        1067
+      ],
+      "license": "https://www.pexels.com/license/"
+    },
+    {
+      "sector": "pharmacy",
+      "path": "/workspace/scratch/11670a598ca9/sector-assets/pharmacy.jpg",
+      "source": "https://www.pexels.com/photo/bottles-of-cosmetic-products-placed-on-white-surface-6621461/",
+      "photographer": "Monstera Production",
+      "size": [
+        1600,
+        1067
+      ],
+      "license": "https://www.pexels.com/license/"
+    },
+    {
+      "sector": "restaurant",
+      "path": "/workspace/scratch/11670a598ca9/sector-assets/restaurant.jpg",
+      "source": "https://www.pexels.com/photo/dinner-served-on-a-plate-in-a-restaurant-18058361/",
+      "photographer": "Valeria Boltneva",
+      "size": [
+        1600,
+        2399
+      ],
+      "license": "https://www.pexels.com/license/"
+    },
+    {
+      "sector": "toys",
+      "path": "/workspace/scratch/11670a598ca9/sector-assets/toys.jpg",
+      "source": "https://www.pexels.com/photo/wooden-animal-figurines-in-close-up-photography-6219067/",
+      "photographer": "Antoni Shkraba",
+      "size": [
+        1600,
+        1067
+      ],
+      "license": "https://www.pexels.com/license/"
+    },
+    {
+      "sector": "fashion-1",
+      "path": "/workspace/scratch/11670a598ca9/sector-assets/fashion-1.jpg",
+      "source": "https://www.pexels.com/photo/white-t-shirt-hanging-on-a-rack-11671964/",
+      "download": "https://images.pexels.com/photos/11671964/pexels-photo-11671964.jpeg?cs=srgb&dl=pexels-marina-podrez-3269296-11671964.jpg&fm=jpg",
+      "subject": "Plain white T-shirt",
+      "license": "https://www.pexels.com/license/"
+    },
+    {
+      "sector": "fashion-2",
+      "path": "/workspace/scratch/11670a598ca9/sector-assets/fashion-2.jpg",
+      "source": "https://www.pexels.com/photo/blue-button-up-shirt-hanging-on-white-metal-bar-9558723/",
+      "download": "https://images.pexels.com/photos/9558723/pexels-photo-9558723.jpeg?cs=srgb&dl=pexels-mart-production-9558723.jpg&fm=jpg",
+      "subject": "Light blue button-up shirt",
+      "license": "https://www.pexels.com/license/"
+    },
+    {
+      "sector": "fashion-3",
+      "path": "/workspace/scratch/11670a598ca9/sector-assets/fashion-3.jpg",
+      "source": "https://www.pexels.com/photo/close-up-of-baby-clothes-in-neutral-colors-16681603/",
+      "download": "https://images.pexels.com/photos/16681603/pexels-photo-16681603.jpeg?cs=srgb&dl=pexels-aljona-ovtsinnikova-121486965-16681603.jpg&fm=jpg",
+      "subject": "Neutral baby clothing",
+      "license": "https://www.pexels.com/license/"
+    },
+    {
+      "sector": "food-1",
+      "path": "/workspace/scratch/11670a598ca9/sector-assets/food-1.jpg",
+      "source": "https://www.pexels.com/photo/photo-of-vegetable-salad-in-a-bowl-3298060/",
+      "download": "https://images.pexels.com/photos/3298060/pexels-photo-3298060.jpeg?cs=srgb&dl=pexels-cottonbro-3298060.jpg&fm=jpg",
+      "subject": "Vegetable salad bowl",
+      "license": "https://www.pexels.com/license/"
+    },
+    {
+      "sector": "food-2",
+      "path": "/workspace/scratch/11670a598ca9/sector-assets/food-2.jpg",
+      "source": "https://www.pexels.com/photo/two-ready-to-eat-wrapped-sandwiches-15974769/",
+      "download": "https://images.pexels.com/photos/15974769/pexels-photo-15974769.jpeg?cs=srgb&dl=pexels-sw-ld-147012990-15974769.jpg&fm=jpg",
+      "subject": "Vegetable-filled sandwiches",
+      "license": "https://www.pexels.com/license/"
+    },
+    {
+      "sector": "food-3",
+      "path": "/workspace/scratch/11670a598ca9/sector-assets/food-3.jpg",
+      "source": "https://www.pexels.com/photo/top-view-photo-of-chocolate-brownie-3094470/",
+      "download": "https://images.pexels.com/photos/3094470/pexels-photo-3094470.jpeg?cs=srgb&dl=pexels-lucasmendesph-3094470.jpg&fm=jpg",
+      "subject": "Chocolate brownies",
+      "license": "https://www.pexels.com/license/"
+    },
+    {
+      "sector": "pharmacy-1",
+      "path": "/workspace/scratch/11670a598ca9/sector-assets/pharmacy-1.jpg",
+      "source": "https://www.pexels.com/photo/photo-of-bar-soaps-on-white-surface-6621470/",
+      "download": "https://images.pexels.com/photos/6621470/pexels-photo-6621470.jpeg?cs=srgb&dl=pexels-gabby-k-6621470.jpg&fm=jpg",
+      "subject": "Plain bar soaps",
+      "license": "https://www.pexels.com/license/"
+    },
+    {
+      "sector": "pharmacy-2",
+      "path": "/workspace/scratch/11670a598ca9/sector-assets/pharmacy-2.jpg",
+      "source": "https://www.pexels.com/photo/black-toiletry-bag-9185864/",
+      "download": "https://images.pexels.com/photos/9185864/pexels-photo-9185864.jpeg?cs=srgb&dl=pexels-timur-weber-9185864.jpg&fm=jpg",
+      "subject": "Open travel toiletry pouch",
+      "license": "https://www.pexels.com/license/"
+    },
+    {
+      "sector": "pharmacy-3",
+      "path": "/workspace/scratch/11670a598ca9/sector-assets/pharmacy-3.jpg",
+      "source": "https://www.pexels.com/photo/bamboo-toothbrush-on-a-concrete-block-8015802/",
+      "download": "https://images.pexels.com/photos/8015802/pexels-photo-8015802.jpeg?cs=srgb&dl=pexels-cup-of-couple-8015802.jpg&fm=jpg",
+      "subject": "Bamboo toothbrush and case",
+      "license": "https://www.pexels.com/license/"
+    },
+    {
+      "sector": "gifts-1",
+      "path": "/workspace/scratch/11670a598ca9/sector-assets/gifts-1.jpg",
+      "source": "https://www.pexels.com/photo/wooden-building-blocks-on-wooden-surface-31061852/",
+      "download": "https://images.pexels.com/photos/31061852/pexels-photo-31061852.jpeg?cs=srgb&dl=pexels-julia-bataeva-2150297626-31061852.jpg&fm=jpg",
+      "subject": "Natural wooden building blocks",
+      "license": "https://www.pexels.com/license/"
+    },
+    {
+      "sector": "gifts-2",
+      "path": "/workspace/scratch/11670a598ca9/sector-assets/gifts-2.jpg",
+      "source": "https://www.pexels.com/photo/artist-palette-and-paint-brushes-on-a-desk-7301925/",
+      "download": "https://images.pexels.com/photos/7301925/pexels-photo-7301925.jpeg?cs=srgb&dl=pexels-cup-of-couple-7301925.jpg&fm=jpg",
+      "subject": "Artist palette and paintbrushes",
+      "license": "https://www.pexels.com/license/"
+    },
+    {
+      "sector": "gifts-3",
+      "path": "/workspace/scratch/11670a598ca9/sector-assets/gifts-3.jpg",
+      "source": "https://www.pexels.com/photo/jigsaw-puzzle-pieces-4000309/",
+      "download": "https://images.pexels.com/photos/4000309/pexels-photo-4000309.jpeg?cs=srgb&dl=pexels-sharon-snider-2339082-4000309.jpg&fm=jpg",
+      "subject": "Jigsaw puzzle pieces",
+      "license": "https://www.pexels.com/license/"
+    }
+  ]
+}
