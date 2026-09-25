@@ -1,0 +1,35 @@
+name: Unpack Chahos Website
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  unpack:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Unpack website
+        run: |
+          mkdir -p extracted
+          unzip -o "Chahos-sitez.zip" -d extracted
+          cp -a extracted/. .
+          rm -rf extracted
+          rm -f "Chahos-sitez.zip"
+
+      - name: Commit website files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Unpack and deploy Chahos Agency website" || exit 0
+          git push
