@@ -20,6 +20,10 @@ jobs:
 
       - name: Unpack website
         run: |
+          # Normal source updates need no archive extraction.
+          if [ ! -f "Chahos-sitez.zip" ]; then
+            exit 0
+          fi
           mkdir -p extracted
           unzip -o "Chahos-sitez.zip" -d extracted
           cp -a extracted/. .

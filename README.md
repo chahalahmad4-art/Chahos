@@ -68,3 +68,14 @@ This export does not change or delete the existing hosted Chahos Site.
 https://vercel.com/docs/builds/configure-a-build
 https://vercel.com/docs/project-configuration/vercel-json
 https://vercel.com/docs/deployments/overview
+
+
+## Website updates — September 2026
+
+The connected hero, mobile project actions, solution concepts, and share/SEO metadata are in `public/`. No build step or new dependencies are required.
+
+Client proof is intentionally unpublished until real content is supplied. Edit `public/proof-content.js` to add approved projects (`name`, `type`, `work`, `result`, optional `url`) and testimonials (`quote`, `name`, `business`). Empty sections remain hidden. Describe only delivered work and substantiated results; obtain permission for public quotations and client names.
+
+Canonical URLs, Open Graph metadata, robots.txt and sitemap.xml currently use https://chahosagency.vercel.app. Update those URLs when adopting a custom domain. The sharing image is public/assets/chahos-social.png (1200 × 630).
+
+The hero supports keyboard navigation, manual pause and reduced-motion preferences. The mobile action bar preserves the existing back button and hides while sample dialogs are open. Concepts remain explicitly labeled as demos, with no live backend claims.
