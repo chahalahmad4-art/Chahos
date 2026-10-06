@@ -1,7 +1,7 @@
 import {answerQuestion,checkInput} from '../../public/ai-lab/core.mjs';
 // Standard chat-completions-compatible API; credentials never reach the browser.
-export async function groundedAnswer(query,env=process.env,fetcher=fetch){
-  const result=answerQuestion(query);
+export async function groundedAnswer(query,env=process.env,fetcher=fetch,knowledge){
+  const result=answerQuestion(query,knowledge?.documents,knowledge?.version);
   if(!env.LLM_API_KEY||result.status!=='answered')return result;
   if(!env.LLM_MODEL)throw new Error('LLM_MODEL is required when generation is enabled.');
   const endpoint=env.LLM_ENDPOINT;
@@ -11,7 +11,7 @@ export async function groundedAnswer(query,env=process.env,fetcher=fetch){
   const data=await response.json(),answer=data.choices?.[0]?.message?.content;
   if(typeof answer!=='string'||!answer.trim()||answer.length>8000)throw new Error('AI provider returned an invalid answer.');
   // Citation checks constrain format, not factual entailment. Never advertise as a guarantee.
-  const citations=[...answer.matchAll(/\[([a-z-]+)\]/g)].map(m=>m[1]);
+  const citations=[...answer.matchAll(/\[([a-z0-9-]+)\]/g)].map(m=>m[1]);
   const allowed=new Set(result.sources.map(s=>s.id));
   if(!citations.length||citations.some(id=>!allowed.has(id))||!checkInput(answer).ok)return {...result,answer:'The generated answer could not pass the citation/policy checks. Review the source passages or ask staff.',status:'output_rejected',mode:'llm',usage:data.usage||null};
   return {...result,answer,mode:'llm',usage:data.usage||null};

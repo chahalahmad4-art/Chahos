@@ -6,6 +6,7 @@ import {randomBytes,randomUUID,timingSafeEqual} from 'node:crypto';
 import {Store} from './store.mjs';
 import {groundedAnswer} from './provider.mjs';
 import {runAgent} from './agent.mjs';
+import {ingestDocuments} from '../../public/ai-lab/ingest.mjs';
 import {availableSlots,policyVersion,datasetVersion} from '../../public/ai-lab/core.mjs';
 import {runEvaluations} from '../../public/ai-lab/cases.mjs';
 const here=dirname(fileURLToPath(import.meta.url));
@@ -29,17 +30,22 @@ export function createLabServer({store=new Store(),token,env=process.env,answere
         if(bucket.count>60)return json(res,429,{error:'Too many requests. Try again in a minute.'});
         const route=url.pathname.slice(5);
         if(req.method==='GET'){
-          const values={health:()=>({mode:env.LLM_API_KEY?'llm':'extractive',datasetVersion,policyVersion}),slots:()=>({slots:availableSlots()}),records:()=>({records:store.records()}),traces:()=>({traces:store.traces()}),outbox:()=>({drafts:store.outbox()})};
+          const values={health:()=>({mode:env.LLM_API_KEY?'llm':'extractive',datasetVersion,policyVersion}),knowledge:()=>({knowledge:store.knowledge()}),slots:()=>({slots:availableSlots()}),records:()=>({records:store.records()}),traces:()=>({traces:store.traces()}),outbox:()=>({drafts:store.outbox()})};
           if(!values[route])return json(res,404,{error:'Unknown API route.'});return json(res,200,values[route]());
         }
         if(req.method!=='POST')return json(res,405,{error:'Method not allowed.'});
         if(!String(req.headers['content-type']).startsWith('application/json'))return json(res,415,{error:'Use application/json.'});
-        let bytes=0,parts=[];for await(const chunk of req){bytes+=chunk.length;if(bytes>8192)return json(res,413,{error:'Request is too large.'});parts.push(chunk);}
+        const bodyLimit=route==='knowledge'?131072:8192;
+        let bytes=0,parts=[];for await(const chunk of req){bytes+=chunk.length;if(bytes>bodyLimit)return json(res,413,{error:'Request is too large.'});parts.push(chunk);}
         let body;try{body=JSON.parse(Buffer.concat(parts).toString());}catch{return json(res,400,{error:'Invalid JSON.'});}
         if(!body||typeof body!=='object'||Array.isArray(body))return json(res,400,{error:'Expected an object.'});
+        if(route==='knowledge'){
+          if(body.reset===true){store.setKnowledge(null);return json(res,200,{knowledge:null});}
+          const knowledge=await ingestDocuments(body.files);store.setKnowledge(knowledge);return json(res,200,{knowledge});
+        }
         if(route==='ask'){
           const start=performance.now(),id=randomUUID();
-          try{const out=await answerer(body.query,env);store.trace({id,status:out.status,mode:out.mode,latencyMs:Number((performance.now()-start).toFixed(2)),sourceIds:out.sources.map(s=>s.id),usage:out.usage||null,policyVersion,datasetVersion});return json(res,200,out);}
+          try{const knowledge=store.knowledge(),out=await answerer(body.query,env,fetch,knowledge);store.trace({id,status:out.status,mode:out.mode,latencyMs:Number((performance.now()-start).toFixed(2)),sourceIds:out.sources.map(s=>s.id),usage:out.usage||null,policyVersion,datasetVersion:knowledge?.version||datasetVersion});return json(res,200,out);}
           catch{store.trace({id,status:'provider_error',mode:'llm',latencyMs:Number((performance.now()-start).toFixed(2)),sourceIds:[],policyVersion,datasetVersion});return json(res,502,{error:'Generation failed. Check the provider configuration or use extractive mode.'});}
         }
         if(route==='agent'){

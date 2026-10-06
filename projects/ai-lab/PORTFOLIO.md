@@ -8,7 +8,7 @@
 
 **Engineering evidence:** Inspect retrieved passages and source IDs; demonstrate unknown-question abstention; run retrieval regression cases.
 
-**Limits:** Five seed documents, lexical search, no uploads or embedding/vector database. Live model behavior not yet verified.
+**Limits:** Five seed documents or user-supplied TXT/Markdown files; lexical search, no PDF parser or embedding/vector database. Live model behavior not yet verified.
 
 ## LeadFlow — Human-approved AI sales workflow
 

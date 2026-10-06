@@ -23,15 +23,15 @@ export function retrieve(query, corpus=documents, limit=3) {
       score+=Math.log(1+(chunks.length-df+.5)/(df+.5))*tf*2.2/(tf+1.2*(.25+.75*c.terms.length/avg));
     }
     return {id:c.id,title:c.title,text:c.text,score:Number(score.toFixed(3)),updated:c.updated};
-  }).filter(c=>c.score>=.65).sort((a,b)=>b.score-a.score).slice(0,limit);
+  }).filter(c=>c.score>0).sort((a,b)=>b.score-a.score).slice(0,limit);
 }
-export function answerQuestion(query, corpus=documents) {
+export function answerQuestion(query, corpus=documents, version=datasetVersion) {
   const policy=checkInput(query);
-  if(!policy.ok) return {answer:policy.message,status:policy.reason,sources:[],mode:'extractive',policyVersion,datasetVersion};
+  if(!policy.ok) return {answer:policy.message,status:policy.reason,sources:[],mode:'extractive',policyVersion,datasetVersion:version};
   const sources=retrieve(query,corpus);
-  if(!sources.length) return {answer:'I do not have a source for that. Please ask a member of staff.',status:'abstained',sources:[],mode:'extractive',policyVersion,datasetVersion};
+  if(!sources.length) return {answer:'I do not have a source for that. Please ask a member of staff.',status:'abstained',sources:[],mode:'extractive',policyVersion,datasetVersion:version};
   // Exact evidence display avoids presenting a lexical retriever as an LLM.
-  return {answer:sources[0].text,status:'answered',sources,mode:'extractive',policyVersion,datasetVersion};
+  return {answer:sources[0].text,status:'answered',sources,mode:'extractive',policyVersion,datasetVersion:version};
 }
 export function validateLead(input) {
   const name=String(input.name||'').trim(),email=String(input.email||'').trim().toLowerCase();

@@ -18,3 +18,5 @@ The demo is single-user. A shared bearer token is not tenant isolation. Rate lim
 ## Suggested adversarial review before any deployment
 
 Test indirect instructions in ingested documents, Unicode/encoded attacks, partial-grounding questions, unsupported discount/refund claims, concurrent slot claims, repeated confirmations, expired plans, provider timeouts, opt-out/deletion requests and cross-account access. Tests in this repo cover only a subset. Use a held-out dataset and human review, record actual failure rates, and document residual risks.
+
+Custom document text and quarantined passages are also stored in the local SQLite database when backend mode is connected. Browser mode retains them in memory only. Filenames and text render through text nodes, never executable HTML. Library replacement is validated before persistence. The SHA-256-derived version is a content provenance label, not an access-control mechanism. Upload quarantine is a heuristic; no claim of complete prompt-injection detection is made.

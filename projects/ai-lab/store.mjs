@@ -8,7 +8,8 @@ export class Store {
       CREATE TABLE IF NOT EXISTS plans(id TEXT PRIMARY KEY,payload TEXT NOT NULL,expires INTEGER NOT NULL,confirmed INTEGER NOT NULL DEFAULT 0);
       CREATE TABLE IF NOT EXISTS bookings(id TEXT PRIMARY KEY,plan_id TEXT UNIQUE NOT NULL,slot TEXT UNIQUE NOT NULL,payload TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS outbox(id TEXT PRIMARY KEY,booking_id TEXT UNIQUE NOT NULL,payload TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'draft');
-      CREATE TABLE IF NOT EXISTS traces(id TEXT PRIMARY KEY,payload TEXT NOT NULL,created INTEGER NOT NULL);`);
+      CREATE TABLE IF NOT EXISTS traces(id TEXT PRIMARY KEY,payload TEXT NOT NULL,created INTEGER NOT NULL);
+      CREATE TABLE IF NOT EXISTS knowledge(id INTEGER PRIMARY KEY CHECK(id=1),payload TEXT NOT NULL);`);
   }
   plan(lead,slot,now=new Date()){
     const plan={...bookingPlan(lead,slot,availableSlots(now)),id:randomUUID()};
@@ -38,5 +39,7 @@ export class Store {
   outbox(){return this.db.prepare('SELECT payload,status FROM outbox ORDER BY rowid DESC LIMIT 100').all().map(x=>({...JSON.parse(x.payload),status:x.status}));}
   trace(t){this.db.prepare('INSERT INTO traces VALUES(?,?,?)').run(t.id,JSON.stringify(t),Date.now());this.db.exec('DELETE FROM traces WHERE id NOT IN (SELECT id FROM traces ORDER BY created DESC LIMIT 500)');}
   traces(){return this.db.prepare('SELECT payload FROM traces ORDER BY created').all().map(x=>JSON.parse(x.payload));}
+  knowledge(){const row=this.db.prepare('SELECT payload FROM knowledge WHERE id=1').get();return row?JSON.parse(row.payload):null;}
+  setKnowledge(value){if(value===null)this.db.prepare('DELETE FROM knowledge WHERE id=1').run();else this.db.prepare('INSERT INTO knowledge VALUES(1,?) ON CONFLICT(id) DO UPDATE SET payload=excluded.payload').run(JSON.stringify(value));}
   close(){this.db.close();}
 }
