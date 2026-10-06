@@ -1,0 +1,13 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {answerQuestion} from '../../../public/ai-lab/core.mjs';
+import {replyLanguage} from '../../../public/ai-lab/lebanese.mjs';
+import {runAgent} from '../agent.mjs';
+import {groundedAnswer} from '../provider.mjs';
+test('Lebanese script and Arabizi produce supported source translations',()=>{const a=answerQuestion('قدّيش الاشتراك');assert.equal(a.language,'ar-LB');assert.equal(a.mode,'curated-translation');assert.match(a.answer,/35/);const b=answerQuestion('adde l eshterak');assert.equal(b.language,'arabizi');assert.match(b.answer,/eshterak/);});
+test('explicit reply language overrides detection; English remains English',()=>{assert.equal(replyLanguage('cancel my trial'),'en');assert.equal(answerQuestion('gym membership',undefined,undefined,'ar-LB').language,'ar-LB');assert.equal(answerQuestion('قديش الاشتراك',undefined,undefined,'en').mode,'extractive');});
+test('custom corpus never receives seeded translations',()=>{const r=answerQuestion('اشتراك',[{id:'membership',title:'Custom',text:'اشتراك خاص 99 دولار'}],'custom-test','ar-LB');assert.match(r.answer,/99/);assert.doesNotMatch(r.answer,/35/);});
+test('Arabizi agent suggests a trial without booking',async()=>{const r=await runAgent('bade e7jez boxing',{});assert.equal(r.tool,'prepare_trial');assert.equal(r.interest,'Boxing');assert.match(r.message,/Ba3d ma n7ajaz/);});
+test('provider receives requested Lebanese language and original evidence',async()=>{await groundedAnswer('gym membership',{LLM_API_KEY:'fake',LLM_MODEL:'fake',LLM_ENDPOINT:'https://example.com/api'},async(_,options)=>{const body=JSON.parse(options.body);assert.equal(JSON.parse(body.messages[1].content).replyLanguage,'ar-LB');assert.match(body.messages[0].content,/Lebanese/);return {ok:true,json:async()=>({choices:[{message:{content:'الاشتراك 35 دولار [membership]'}}]})};},undefined,'ar-LB');});
+test('AI menu is separate; homepage has no AI project proof cards',()=>{const root=new URL('../../../public/',import.meta.url),home=readFileSync(new URL('index.html',root),'utf8'),proof=readFileSync(new URL('proof-content.js',root),'utf8');assert.match(home,/href="ai-projects.html">AI Projects/);assert.doesNotMatch(proof,/SourceDesk|LeadFlow|TrustBench/);assert.match(readFileSync(new URL('ai-projects.html',root),'utf8'),/SourceDesk/);});
