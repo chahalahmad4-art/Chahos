@@ -28,7 +28,7 @@ Secrets stay in the backend. Live provider requests can incur charges. No provid
 
 | Project | Implemented | Evidence to show a reviewer |
 |---|---|---|
-| SourceDesk | BM25 multilingual keyword retrieval, versioned corpus, cited extracts, abstention, optional grounded LLM response | Ask supported/unsupported questions; inspect source IDs and scores; compare extractive and model modes |
+| SourceDesk | TXT/Markdown ingestion, overlapping chunks, SHA-256 library versions, BM25 multilingual keyword retrieval, versioned corpus, cited extracts, abstention, optional grounded LLM response | Ask supported/unsupported questions; inspect source IDs and scores; compare extractive and model modes |
 | LeadFlow | Optional LLM tool selection, allowlisted read-only handlers, argument validation, consent, expiring approval plans, transactional SQLite CRM/booking, unique slots, idempotency, follow-up draft outbox | Show that plan creation does not book, explicit confirmation does, repeat confirmation creates no duplicate |
 | TrustBench | 18 deterministic evaluation cases, measured request latency/p95, metadata-only traces, bounded retention, downloadable reports, CI regression tests | Run the evaluation suite, inspect failures, trace blocked/unknown requests, inspect CI test evidence |
 
@@ -76,6 +76,12 @@ To connect real systems: configure authenticated webhooks, a durable idempotency
 
 ## What remains before a production SaaS claim
 
-User accounts, tenant isolation, role permissions, persistent hosted storage/backups, encryption/retention/deletion policy, distributed rate limiting, hosted secrets, abuse protection, production deployment, semantic/vector retrieval, document ingestion/version rollback, a larger held-out evaluation dataset and live provider verification. Billing, real WhatsApp delivery and client results are not implemented.
+User accounts, tenant isolation, role permissions, persistent hosted storage/backups, encryption/retention/deletion policy, distributed rate limiting, hosted secrets, abuse protection, production deployment, semantic/vector retrieval, PDF ingestion/version rollback, a larger held-out evaluation dataset and live provider verification. Billing, real WhatsApp delivery and client results are not implemented.
 
 The source is deliberately structured as a monorepo of three related projects. They are not three separately deployed SaaS products. See `PORTFOLIO.md` for accurate case-study wording and a demonstration script.
+
+## Custom knowledge libraries
+
+SourceDesk accepts up to five UTF-8 TXT or Markdown files, 32 KiB per file and 96 KiB combined. It creates overlapping passages up to 900 characters and assigns a SHA-256-derived version. Known instruction patterns quarantine individual passages; this heuristic can miss attacks and does not prove safety. Review your files before use. PDFs and embeddings are not supported.
+
+In browser mode, text stays in memory and disappears on refresh. In local backend mode, POST `/api/knowledge` with `{files:[{name,text}]}` validates and persists the replacement library in SQLite; GET reads it, and POST `{reset:true}` restores the built-in dataset. Failed imports preserve the previous library. Retrieved passages are sent to the configured provider when LLM generation is enabled; the interface discloses this. Use non-sensitive demo files. LeadFlow and the fixed evaluation suite remain scoped to the gym dataset.
