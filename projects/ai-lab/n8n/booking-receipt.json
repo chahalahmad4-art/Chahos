@@ -1,0 +1,53 @@
+{
+  "name": "Chahos - Demo booking receipt (inactive scaffold)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "chahos-demo-booking",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "demo-webhook",
+      "name": "Demo webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        260,
+        300
+      ],
+      "webhookId": "chahos-demo-booking"
+    },
+    {
+      "parameters": {
+        "jsCode": "const event = $input.first().json.body;\nif (!event || event.event !== 'booking.confirmed' || event.consent !== true || typeof event.bookingId !== 'string') { throw new Error('Invalid or unconsented event'); }\nreturn [{json: {accepted: true, bookingId: event.bookingId, delivery: 'NOT_SENT', note: 'Demo receipt only. Add authentication and a durable deduplication store before any real integration.'}}];"
+      },
+      "id": "validate-event",
+      "name": "Validate demo event",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        500,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Demo webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate demo event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

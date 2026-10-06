@@ -1,2 +1,11 @@
 .vercel/
 .DS_Store
+
+# AI Lab local secrets and demo data
+.env
+.env.*
+!.env.example
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+node_modules/
