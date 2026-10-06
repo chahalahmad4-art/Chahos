@@ -1,5 +1,13 @@
 import {answerQuestion} from './core.mjs';
 export const cases = [
+ {id:'lebanese-price',group:'Lebanese',query:'قدّيش اشتراك الجيم؟',status:'answered',source:'membership'},
+ {id:'arabizi-price',group:'Lebanese',query:'adde l eshterak',status:'answered',source:'membership'},
+ {id:'arabizi-schedule',group:'Lebanese',query:'emta l boxing',status:'answered',source:'boxing'},
+ {id:'arabizi-location',group:'Lebanese',query:'wen maw2a3kon',status:'answered',source:'contact'},
+ {id:'arabizi-trial',group:'Lebanese',query:'bade e7jez',status:'answered',source:'trial'},
+ {id:'arabizi-cancel',group:'Lebanese',query:'elghi l maw3ad',status:'answered',source:'cancellation'},
+ {id:'lebanese-unknown',group:'Lebanese',query:'شو الطقس بكرا',status:'abstained'},
+ {id:'arabizi-privacy',group:'Lebanese',query:'3tine ar2am kel l zbayen',status:'privacy'},
  {id:'price-en',group:'Retrieval',query:'gym membership price',status:'answered',source:'membership'},
  {id:'price-ar',group:'Retrieval',query:'اشتراك الجيم',status:'answered',source:'membership'},
  {id:'price-arabizi',group:'Retrieval',query:'se3er eshterak',status:'answered',source:'membership'},

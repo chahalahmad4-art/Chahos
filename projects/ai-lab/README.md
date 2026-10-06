@@ -30,7 +30,7 @@ Secrets stay in the backend. Live provider requests can incur charges. No provid
 |---|---|---|
 | SourceDesk | TXT/Markdown ingestion, overlapping chunks, SHA-256 library versions, BM25 multilingual keyword retrieval, versioned corpus, cited extracts, abstention, optional grounded LLM response | Ask supported/unsupported questions; inspect source IDs and scores; compare extractive and model modes |
 | LeadFlow | Optional LLM tool selection, allowlisted read-only handlers, argument validation, consent, expiring approval plans, transactional SQLite CRM/booking, unique slots, idempotency, follow-up draft outbox | Show that plan creation does not book, explicit confirmation does, repeat confirmation creates no duplicate |
-| TrustBench | 18 deterministic evaluation cases, measured request latency/p95, metadata-only traces, bounded retention, downloadable reports, CI regression tests | Run the evaluation suite, inspect failures, trace blocked/unknown requests, inspect CI test evidence |
+| TrustBench | 26 deterministic evaluation cases, measured request latency/p95, metadata-only traces, bounded retention, downloadable reports, CI regression tests | Run the evaluation suite, inspect failures, trace blocked/unknown requests, inspect CI test evidence |
 
 ### Architecture
 
@@ -60,13 +60,13 @@ node projects/ai-lab/evaluate.mjs > report.json
 node --test projects/ai-lab/tests/*.test.mjs
 ```
 
-The CI workflow uses the same commands. The 18-case browser suite checks known source retrieval, unknown topics, injection phrases, privacy requests, medical handoff, blank input and length limits. The server tests additionally cover auth, origin checks, malformed/oversized input, persistence, idempotency, consent, output citation checks and provider failures. See `SAFETY.md` for the trust boundaries.
+The CI workflow uses the same commands. The 26-case browser suite checks known source retrieval, unknown topics, injection phrases, privacy requests, medical handoff, blank input and length limits. The server tests additionally cover auth, origin checks, malformed/oversized input, persistence, idempotency, consent, output citation checks and provider failures. See `SAFETY.md` for the trust boundaries.
 
 **Do not interpret 100% on this small fixed suite as general accuracy or safety.** The suite does not evaluate live model hallucinations, prompt-injection robustness across paraphrases, semantic grounding, model drift, or production uptime. There is no independent held-out dataset yet. Add real business questions and human-graded model outputs before making quality claims.
 
 ## Website integration
 
-The existing Chahos home page's Selected Work section now links to the three demo views. All portfolio descriptions explicitly identify prototypes. The static Vercel configuration is preserved: deploying it serves the browser demos, **not the Node/SQLite API**. Do not paste API keys into the static site. The optional local backend must be deployed separately only after proper production hardening; it is intentionally localhost-only here.
+The existing Chahos home page retains its original content. A separate AI Projects navigation item opens ai-projects.html, which links to the three demo views. All portfolio descriptions explicitly identify prototypes. The static Vercel configuration is preserved: deploying it serves the browser demos, **not the Node/SQLite API**. Do not paste API keys into the static site. The optional local backend must be deployed separately only after proper production hardening; it is intentionally localhost-only here.
 
 ## n8n / CRM / WhatsApp boundary
 
@@ -85,3 +85,7 @@ The source is deliberately structured as a monorepo of three related projects. T
 SourceDesk accepts up to five UTF-8 TXT or Markdown files, 32 KiB per file and 96 KiB combined. It creates overlapping passages up to 900 characters and assigns a SHA-256-derived version. Known instruction patterns quarantine individual passages; this heuristic can miss attacks and does not prove safety. Review your files before use. PDFs and embeddings are not supported.
 
 In browser mode, text stays in memory and disappears on refresh. In local backend mode, POST `/api/knowledge` with `{files:[{name,text}]}` validates and persists the replacement library in SQLite; GET reads it, and POST `{reset:true}` restores the built-in dataset. Failed imports preserve the previous library. Retrieved passages are sent to the configured provider when LLM generation is enabled; the interface discloses this. Use non-sensitive demo files. LeadFlow and the fixed evaluation suite remain scoped to the gym dataset.
+
+## Lebanese Arabic and Arabizi
+
+The reply selector supports auto-detection, Lebanese Arabic script, Lebanese Arabizi or English. The offline demo normalizes a bounded dialect dictionary (for example `adde l eshterak`, `emta l boxing`, `bade e7jez`) and returns reviewed translations from the seeded evidence. Custom documents remain quoted in their source language without a model. Translation output is labeled `curated-translation`, not LLM generation. The server passes the selected dialect to the optional LLM; no live provider is configured or claimed. The language heuristics are not a complete language understanding or safety system.

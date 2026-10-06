@@ -1,3 +1,4 @@
+import {seedReplies} from './lebanese.mjs';
 // Fictional business dataset, not Chahos prices or a real client's policy.
 export const documents = [
   {id:'membership', title:'Cedar Gym · Membership', updated:'2026-10-06', text:'Cedar Gym is a fictional gym in Tripoli, Lebanon. Gym membership costs $35 per month. اشتراك الجيم 35 دولار بالشهر. Membership includes weights and cardio. Personal training is quoted separately. اشتراك gym membership price se3er eshterak'},
@@ -6,4 +7,5 @@ export const documents = [
   {id:'cancellation', title:'Cedar Gym · Cancellation policy', updated:'2026-10-06', text:'Cancel a trial appointment at least 12 hours before the appointment. Refund eligibility for paid memberships must be checked with a human manager; the assistant cannot approve refunds. إلغاء الموعد قبل 12 ساعة. استرجاع الأموال عبر الإدارة. cancellation cancel refund'},
   {id:'contact', title:'Cedar Gym · Contact & handoff', updated:'2026-10-06', text:'Cedar Gym is a fictional demonstration business in Tripoli, Lebanon. Ask a human member of staff for medical advice, accessibility needs, exceptional discounts or complaints. No real contact number is supplied in this demo. طرابلس لبنان location address وين الموقع'},
 ];
-export const datasetVersion = 'cedar-demo-v1';
+for(const doc of documents){doc.replies=seedReplies[doc.id];if(doc.id==='boxing')doc.keywords=['schedule'];}
+export const datasetVersion = 'cedar-demo-v2-lb';

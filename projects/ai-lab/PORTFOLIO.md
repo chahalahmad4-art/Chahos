@@ -24,7 +24,7 @@
 
 **Problem:** AI features need reproducible checks and visible failures.
 
-**Built:** An 18-case deterministic regression suite with actual pass/fail calculation, request metadata traces, measured p95 latency, safety interventions, downloadable reports and CI tests for backend controls.
+**Built:** An 26-case deterministic regression suite with actual pass/fail calculation, request metadata traces, measured p95 latency, safety interventions, downloadable reports and CI tests for backend controls.
 
 **Engineering evidence:** Run the suite yourself, compare expected/observed outputs, inspect request traces, review test source and CI logs.
 
@@ -34,7 +34,7 @@
 
 1. SourceDesk: ask “gym membership price”; open its source. Ask an unrelated question and show abstention.
 2. LeadFlow: request a boxing trial, fill fictional details, review the proposed actions and confirm. Show the CRM record and that no follow-up was sent.
-3. TrustBench: run the 18 cases and inspect the results. Show query traces and source IDs.
+3. TrustBench: run the 26 cases and inspect the results. Show query traces and source IDs.
 4. Open the backend tests and explain idempotency, consent and the no-write-tools boundary.
 
 CV wording: “Built three connected AI portfolio prototypes covering source-grounded retrieval, human-approved agent workflows, SQLite persistence, regression evaluations and safety controls; implemented optional server-side LLM adapters and CI tests.”
