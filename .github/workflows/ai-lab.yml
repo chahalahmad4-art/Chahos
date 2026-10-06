@@ -1,0 +1,23 @@
+name: AI Lab regression and safety
+on:
+  push:
+    paths: ['public/ai-lab/**', 'projects/ai-lab/**', '.github/workflows/ai-lab.yml']
+  pull_request:
+    paths: ['public/ai-lab/**', 'projects/ai-lab/**', '.github/workflows/ai-lab.yml']
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node --test projects/ai-lab/tests/*.test.mjs
+      - run: node projects/ai-lab/evaluate.mjs > evaluation-report.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ai-lab-evaluations
+          path: evaluation-report.json
