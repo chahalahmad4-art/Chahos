@@ -3,6 +3,7 @@ import {readFile} from 'node:fs/promises';
 import {resolve,extname,dirname,sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {randomBytes,randomUUID,timingSafeEqual} from 'node:crypto';
+import {getIndustry} from '../../public/ai-lab/industries.mjs';
 import {Store} from './store.mjs';
 import {groundedAnswer} from './provider.mjs';
 import {runAgent} from './agent.mjs';
@@ -44,14 +45,15 @@ export function createLabServer({store=new Store(),token,env=process.env,answere
           const knowledge=await ingestDocuments(body.files);store.setKnowledge(knowledge);return json(res,200,{knowledge});
         }
         if(['ask','agent'].includes(route)&&body.language!==undefined&&!['auto','en','ar-LB','arabizi'].includes(body.language))return json(res,400,{error:'Unsupported reply language.'});
+        const industry=['ask','agent'].includes(route)?getIndustry(body.industry||'fitness'):null;
         if(route==='ask'){
           const start=performance.now(),id=randomUUID();
-          try{const knowledge=store.knowledge(),out=await answerer(body.query,env,fetch,knowledge,body.language);store.trace({id,status:out.status,mode:out.mode,latencyMs:Number((performance.now()-start).toFixed(2)),sourceIds:out.sources.map(s=>s.id),usage:out.usage||null,policyVersion,datasetVersion:knowledge?.version||datasetVersion});return json(res,200,out);}
+          try{const knowledge=store.knowledge()||industry,out=await answerer(body.query,env,fetch,knowledge,body.language);store.trace({id,status:out.status,mode:out.mode,latencyMs:Number((performance.now()-start).toFixed(2)),sourceIds:out.sources.map(s=>s.id),usage:out.usage||null,policyVersion,datasetVersion:knowledge?.version||datasetVersion});return json(res,200,out);}
           catch{store.trace({id,status:'provider_error',mode:'llm',latencyMs:Number((performance.now()-start).toFixed(2)),sourceIds:[],policyVersion,datasetVersion});return json(res,502,{error:'Generation failed. Check the provider configuration or use extractive mode.'});}
         }
         if(route==='agent'){
           const start=performance.now(),id=randomUUID();
-          try{const result=await runAgent(body.message,env,fetch,body.language);store.trace({id,status:result.status,mode:result.mode,latencyMs:Number((performance.now()-start).toFixed(2)),sourceIds:(result.sources||[]).map(s=>s.id),tool:result.tool,usage:result.usage||null,policyVersion,datasetVersion});return json(res,200,result);}
+          try{const result=await runAgent(body.message,env,fetch,body.language,industry.id);store.trace({id,status:result.status,mode:result.mode,latencyMs:Number((performance.now()-start).toFixed(2)),sourceIds:(result.sources||[]).map(s=>s.id),tool:result.tool,usage:result.usage||null,policyVersion,datasetVersion});return json(res,200,result);}
           catch{store.trace({id,status:'agent_error',mode:'llm-tool-calling',latencyMs:Number((performance.now()-start).toFixed(2)),sourceIds:[],policyVersion,datasetVersion});return json(res,502,{error:'Agent request failed. Use the enquiry form or check the model configuration.'});}
         }
         if(route==='plan'){if(!body.lead||typeof body.lead!=='object')return json(res,400,{error:'Lead details are required.'});return json(res,200,store.plan(body.lead,body.slot));}

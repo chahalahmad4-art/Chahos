@@ -1,0 +1,3 @@
+import {industries} from './ai-lab/industries.mjs';
+const grid=document.querySelector('#industry-grid');
+for(const i of industries){const card=document.createElement('article');card.className='industry-card';const title=document.createElement('h3');title.textContent=i.name;const ar=document.createElement('p');ar.lang='ar-LB';ar.dir='rtl';ar.textContent=i.ar;const benefit=document.createElement('p');benefit.textContent=i.benefit;const link=document.createElement('a');link.className='industry-link';link.href='ai-lab/?industry='+i.id+'#knowledge';link.textContent='Try '+i.name.toLowerCase()+' →';card.append(title,ar,benefit,link);grid.append(card);}
