@@ -10,10 +10,11 @@ export class Store {
       CREATE TABLE IF NOT EXISTS outbox(id TEXT PRIMARY KEY,booking_id TEXT UNIQUE NOT NULL,payload TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'draft');
       CREATE TABLE IF NOT EXISTS traces(id TEXT PRIMARY KEY,payload TEXT NOT NULL,created INTEGER NOT NULL);
       CREATE TABLE IF NOT EXISTS knowledge(id INTEGER PRIMARY KEY CHECK(id=1),payload TEXT NOT NULL);`);
+    this.db.exec("UPDATE bookings SET slot='fitness|'||slot WHERE instr(slot,'|')=0");
   }
   plan(lead,slot,now=new Date()){
     const plan={...bookingPlan(lead,slot,availableSlots(now)),id:randomUUID()};
-    if(this.db.prepare('SELECT id FROM bookings WHERE slot=?').get(slot))throw new Error('That slot is already booked.');
+    if(this.db.prepare('SELECT id FROM bookings WHERE slot=?').get(plan.lead.industry+'|'+slot))throw new Error('That slot is already booked.');
     this.db.prepare('DELETE FROM plans WHERE expires < ? AND confirmed=0').run(Date.now());
     this.db.prepare('INSERT INTO plans(id,payload,expires) VALUES(?,?,?)').run(plan.id,JSON.stringify(plan),Date.now()+10*60*1000);
     return plan;
@@ -30,8 +31,8 @@ export class Store {
       const plan=JSON.parse(row.payload);
       if(new Date(plan.slot)<=new Date())throw new Error('Appointment is in the past.');
       const result={...plan,id:randomUUID(),status:'confirmed'};
-      this.db.prepare('INSERT INTO bookings VALUES(?,?,?,?)').run(result.id,planId,plan.slot,JSON.stringify(result));
-      if(plan.lead.followUp)this.db.prepare('INSERT INTO outbox(id,booking_id,payload) VALUES(?,?,?)').run(randomUUID(),result.id,JSON.stringify({event:'booking.confirmed',bookingId:result.id,recipient:plan.lead.email,consent:true,text:'Your demo trial request has been confirmed.',delivery:'manual-review-required'}));
+      this.db.prepare('INSERT INTO bookings VALUES(?,?,?,?)').run(result.id,planId,(plan.lead.industry||'fitness')+'|'+plan.slot,JSON.stringify(result));
+      if(plan.lead.followUp)this.db.prepare('INSERT INTO outbox(id,booking_id,payload) VALUES(?,?,?)').run(randomUUID(),result.id,JSON.stringify({event:'booking.confirmed',bookingId:result.id,recipient:plan.lead.email,consent:true,text:'Your demo enquiry has been confirmed.',delivery:'manual-review-required'}));
       this.db.prepare('UPDATE plans SET confirmed=1 WHERE id=?').run(planId);this.db.exec('COMMIT');return result;
     }catch(err){this.db.exec('ROLLBACK');if(String(err.message).includes('UNIQUE'))throw new Error('That slot was just booked. Choose another.');throw err;}
   }

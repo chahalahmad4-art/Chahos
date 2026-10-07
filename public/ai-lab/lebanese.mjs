@@ -24,7 +24,7 @@ const notices={
  too_long:['خلّي سؤالك أقل من 1500 حرف.','Khalli sou2alak a2al men 1500 7aref.'],
  injection:['فيني ساعدك بمعلومات الشغل، بس ما فيني غيّر القواعد أو اكشف معلومات سرّية.','Fini se3dak b ma3loumet l sheghel, bas ma fini ghayyer l rules aw ekshaf asrar.'],
  privacy:['معلومات الزباين خاصة، وما فيني اعطيك بيانات أشخاص تانيين.','Ma3loumet l zbayen khassa. Ma fini a3tik bayenet ashkhas tenyine.'],
- handoff:['هالسؤال بدّه مختص. فيني ساعدك بمعلومات خدمات الجيم بس.','Hal sou2al baddo mokhtass. Fini se3dak b ma3loumet khadmet l gym bas.'],
+ handoff:['هالسؤال بدّه مختص. فيني ساعدك بمعلومات خدمات الشركة بس.','Hal sou2al baddo mokhtass. Fini se3dak b ma3loumet khadmet l gym bas.'],
  abstained:['ما عندي معلومة بالمصادر بتجاوب عهالسؤال. خلّينا نتأكد من حدا من الفريق.','Ma 3ande ma3loume bel masader btjewib 3a hal sou2al. Khallina net2akkad men l team.'],
  output_rejected:['الجواب ما مرق بفحص المصادر. فيك تشوف المقاطع أو تتأكد من الفريق.','L jaweb ma mara2 b fa7es l masader. Fik tshouf l sources aw tes2al l team.'],
 };

@@ -1,3 +1,4 @@
+import {getIndustry} from './industries.mjs';
 import {documents, datasetVersion} from './knowledge.mjs';
 import {canonicalToken,replyLanguage,localNotice} from './lebanese.mjs';
 export {documents, datasetVersion};
@@ -10,7 +11,7 @@ export function checkInput(value) {
   const s=value.normalize('NFKC');
   if(/(?:ignore|disregard|override).{0,40}(?:instructions|rules|previous|system)|(?:reveal|print|show|expose).{0,35}(?:system prompt|api.?key|secret|password)|تجاهل.{0,30}(?:التعليمات|القواعد)|اكشف.{0,20}(?:المفتاح|كلمة السر)|ensa.{0,30}(?:ta3limet|rules|instructions)/i.test(s)) return {ok:false, reason:'injection', message:'I can help with business information, but cannot change my rules or reveal secrets.'};
   if(/(?:list|export|show|give|dump).{0,35}(?:all|other).{0,20}(?:customers|leads|phones|emails)|(?:ارقام|أرقام|بيانات).{0,20}(?:العملاء|الزبائن)|(?:3tine|aatine|a3tine).{0,30}(?:ar2am|emails|data).{0,30}(?:zbayen|customers)/i.test(s)) return {ok:false, reason:'privacy', message:'Customer records are private. This assistant cannot list other people’s data.'};
-  if(/(?:diagnos|prescrib|steroid|chest pain|insulin|medical advice|ألم الصدر|دواء|منشطات)/i.test(s)) return {ok:false, reason:'handoff', message:'Please contact an appropriate healthcare professional. I can only explain the gym’s services.'};
+  if(/(?:diagnos|prescrib|steroid|chest pain|insulin|medical advice|ألم الصدر|دواء|منشطات)/i.test(s)) return {ok:false, reason:'handoff', message:'Please contact an appropriate healthcare professional. I can only explain business services.'};
   return {ok:true};
 }
 // BM25 lexical retrieval. Scores are relevance scores, NOT confidence probabilities.
@@ -40,9 +41,10 @@ export function validateLead(input) {
   const interest=String(input.interest||'');
   if(name.length<2||name.length>80)throw new Error('Enter a name between 2 and 80 characters.');
   if(email.length>160||!/^\S+@\S+\.\S+$/.test(email))throw new Error('Enter a valid email address.');
-  if(!['Gym membership','Boxing','Personal training'].includes(interest))throw new Error('Choose an available service.');
+  const industry=getIndustry(input.industry||'fitness');
+  if(!industry.services.includes(interest))throw new Error('Choose an available service.');
   if(input.consent!==true)throw new Error('Permission to store this enquiry is required.');
-  return {name,email,interest,consent:true,followUp:input.followUp===true};
+  return {name,email,interest,industry:industry.id,consent:true,followUp:input.followUp===true};
 }
 export function qualifyLead(input) {const lead=validateLead(input);return {...lead,stage:'qualified',reason:'Service selected and contact details supplied.',nextAction:'Choose a trial slot and confirm.'};}
 export function availableSlots(now=new Date()) {
