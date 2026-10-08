@@ -5,5 +5,10 @@
   "installCommand": "",
   "outputDirectory": "public",
   "cleanUrls": false,
-  "trailingSlash": true
+  "trailingSlash": true,
+  "functions": {
+    "api/agency.mjs": {
+      "maxDuration": 60
+    }
+  }
 }
