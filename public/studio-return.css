@@ -11,6 +11,16 @@
 .studio-return:hover{background:#2c6549;transform:translateY(-2px)}
 .studio-return:focus-visible{outline:3px solid #c4eaa1;outline-offset:3px}
 .studio-return-icon{font-size:19px;line-height:1}
+/* Make the existing header return link recognizable even before scrolling. */
+header .back{
+ display:inline-flex;align-items:center;justify-content:center;gap:7px;
+ min-height:43px;padding:9px 13px;background:#dce9b5;color:#133b2f!important;
+ border:1px solid #9fb78b;border-radius:5px;
+ text-decoration:none;font-size:13px;font-weight:800;white-space:nowrap;
+}
+header .back:hover{background:#f0f7cf}
+header .back:focus-visible{outline:3px solid #d0ec98;outline-offset:3px}
+
 body{padding-bottom:max(72px,calc(72px + env(safe-area-inset-bottom)))}
 @media(max-width:640px){
  .studio-return{left:14px;bottom:calc(14px + env(safe-area-inset-bottom));min-height:48px;padding:11px 15px;font-size:13px}
