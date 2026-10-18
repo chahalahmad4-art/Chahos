@@ -103,6 +103,32 @@ const errors=[];
     await page.close();
    }
   }
+  // Inspect rendered font metrics instead of only asserting stylesheet text.
+  for(const route of ['/index.html','/services.html','/book-project.html','/ai-projects.html','/assistant/','/ai-lab/']){
+   for(const width of [390,1440]){
+    const page=await browser.newPage({viewport:{width,height:844},deviceScaleFactor:1});
+    await page.goto(base+route,{waitUntil:'domcontentloaded'});
+    const emphasized=await page.locator('h1 em, h2 em, h3 em').evaluateAll(nodes=>nodes.map(el=>({
+     text:el.textContent.trim().slice(0,42),
+     family:getComputedStyle(el).fontFamily,
+     style:getComputedStyle(el).fontStyle,
+     weight:getComputedStyle(el).fontWeight
+    })));
+    assert.ok(emphasized.length>0,'no title highlights in '+route);
+    for(const e of emphasized){
+     assert.equal(e.style,'normal','decorative italic survived on '+route+' at '+width+': '+e.text);
+     assert.doesNotMatch(e.family,/Georgia|Times New Roman|serif\s*$/i,'serif survived on '+route+' at '+width+': '+e.text);
+    }
+    if(route==='/index.html'){
+     const second=await page.locator('.service-headline-second').evaluate(el=>({
+      family:getComputedStyle(el).fontFamily,style:getComputedStyle(el).fontStyle
+     }));
+     assert.equal(second.style,'normal');
+     assert.doesNotMatch(second.family,/Georgia|Times New Roman/);
+    }
+    await page.close();
+   }
+  }
   const reduced=await browser.newPage({viewport:{width:390,height:844},reducedMotion:'reduce'});
   await reduced.goto(base+'/index.html',{waitUntil:'networkidle'});
   const behavior=await reduced.evaluate(()=>getComputedStyle(document.documentElement).scrollBehavior);
