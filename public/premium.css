@@ -109,6 +109,17 @@ h1,h2,h3{font-feature-settings:"kern" 1}
 .site-guide-link--action{background:#dcebaa;border-color:#cbdda1}
 .site-guide-link--action:hover{background:#ecf5c6;border-color:#bbd58a}
 .site-guide-link--action .site-guide-index,.site-guide-link--action .site-guide-info small{color:#48664d}
+.site-guide-shortcuts{display:flex;justify-content:flex-end;align-items:center;flex-wrap:wrap;gap:10px;margin:11px 1px 0;color:#718271;font-size:.73rem}
+.site-guide-shortcuts a{color:#1b5540;font-weight:760;text-decoration:underline;text-underline-offset:3px}
+.site-guide-shortcuts a:hover{color:#338053}
+.site-guide-shortcuts a:focus-visible{outline:3px solid #73a74d;outline-offset:3px}
+@media(min-width:761px) and (max-width:1050px){
+ .header:has(.menu) nav{gap:11px;font-size:.78rem}
+ .header:has(.menu) nav a[href="#about-chahos"],.header:has(.menu) nav a[href="#contact"]{display:none}
+ .header:has(.menu) .nav-cta{padding:9px 12px}
+ .header:has(.menu) .wordmark{font-size:1.65rem}
+}
+
 /* Services and work — tactile restrained cards. */
 .section-head h2 em,.gallery-hero h1 em{font-family:Georgia,"Times New Roman",serif;font-style:italic;font-weight:400;letter-spacing:-.058em;color:#397150}
 .agency-story{position:relative;background:linear-gradient(115deg,#133f32,#0d3028);overflow:hidden}
@@ -214,6 +225,7 @@ footer.wrap{color:#2c5441}
  .site-guide h2{font-size:1.45rem;letter-spacing:-.037em}
  .site-guide-hint{font-size:.75rem;text-align:left;max-width:100%}
  .site-guide-grid{gap:8px}
+ .site-guide-shortcuts{justify-content:flex-start;font-size:.7rem;margin-top:12px}
  .site-guide-link{min-height:79px;padding:11px;gap:8px;border-radius:12px}
  .site-guide-index{font-size:.61rem}
  .site-guide-info strong{font-size:.84rem}
