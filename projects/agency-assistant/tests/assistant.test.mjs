@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {chat,validateChat,validateEnquiry,offlineAnswer,conversationLanguage,buildAgencyPrompt} from '../engine.mjs';
+import {chat,validateChat,validateEnquiry,offlineAnswer,conversationLanguage,buildAgencyPrompt,salesTurnSignals} from '../engine.mjs';
 import {createHandler,readiness} from '../handler.mjs';
 import {saveEnquiry} from '../hubspot.mjs';
 import {budget,telemetry} from '../storage.mjs';
@@ -41,7 +41,7 @@ test('prompt gives real Lebanese sales examples and guards against invented prom
  assert.match(prompt,/no tools or CRM access/i);
  assert.match(prompt,/contact page/);
  assert.match(prompt,/VERIFIED LIBRARY/);
- assert.match(buildAgencyPrompt('ar-LB'),/بيتحدّدوا/);
+ assert.match(buildAgencyPrompt('ar-LB'),/شو بتنصحوني/);
  assert.match(buildAgencyPrompt('en'),/Clear, friendly/);
 });
 test('chat system instructions use matching language and previous project details',async()=>{
@@ -54,4 +54,39 @@ test('chat system instructions use matching language and previous project detail
   return reply({answer:'Akeed! Fina ne7ke b website lal ma7al. Badak bas catalogue aw online orders?',status:'answered',sourceIds:['websites']})();
  });
  assert.ok(saw);
+});
+
+
+test('latest-turn signals separate advice and delivery from price/time questions',()=>{
+ const advice=salesTurnSignals('3ande restaurant b Trablos w bade website fi menu online w delivery orders. Shu btense7ne?');
+ assert.deepEqual(advice,{asksPrice:false,asksTimeline:false,asksAdvice:true,readyToProceed:false});
+ const quote=salesTurnSignals('Addeh byeklef w addeh byekhod wa2et?');
+ assert.equal(quote.asksPrice,true);assert.equal(quote.asksTimeline,true);
+ assert.equal(salesTurnSignals('قديش بكلف الموقع؟').asksPrice,true);
+ assert.equal(salesTurnSignals('شو بتنصحني لموقعي؟').asksAdvice,true);
+ assert.equal(salesTurnSignals('Yalla nballesh').readyToProceed,true);
+ assert.equal(salesTurnSignals('يلا نبلش').readyToProceed,true);
+ assert.equal(salesTurnSignals('bade menu delivery orders').asksTimeline,false);
+});
+test('advice prompt prioritizes solutions without unsolicited quotation',()=>{
+ const prompt=buildAgencyPrompt('arabizi',salesTurnSignals('Shu btense7ne? Bade website la resto w menu online'));
+ assert.match(prompt,/Do not bring up prices, quotes, budget or project timelines unless/);
+ assert.match(prompt,/prioritize actionable advice/);
+ assert.match(prompt,/asksPrice":false,"asksTimeline":false,"asksAdvice":true/);
+ assert.match(prompt,/mobile-friendly menu and easy ordering flow/);
+ assert.doesNotMatch(prompt,/User: \\".*delivery orders. Addeh byeklef/);
+});
+test('start-your-project next step is bounded and honest',()=>{
+ const prompt=buildAgencyPrompt('ar-LB',salesTurnSignals('يلا نبلش'));
+ assert.match(prompt,/readyToProceed":true/);
+ assert.match(prompt,/the client must personally press Send/);
+ assert.match(prompt,/nextStep.*project_request/);
+ assert.match(prompt,/no.*CRM write|NOT an action, booking, CRM write/);
+});
+test('Gemini response exposes only known optional project next step',async()=>{
+ const answer=await chat({message:'yalla nballesh'},env,reply({answer:'Akeed, fik tfout 3a Start Your Project w teb3at l talab.',status:'answered',sourceIds:['contact'],nextStep:'project_request'}));
+ assert.equal(answer.nextStep,'project_request');
+ await assert.rejects(chat({message:'yalla nballesh'},env,reply({answer:'Ok',status:'answered',sourceIds:['contact'],nextStep:'https://evil.example'})));
+ const normal=await chat({message:'shu services 3andkon'},env,reply({answer:'Mneshteghel websites',status:'answered',sourceIds:['agency']}));
+ assert.equal(normal.nextStep,null);
 });
