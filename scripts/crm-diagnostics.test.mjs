@@ -44,7 +44,7 @@ test('diagnostic confirms test account, valid open stage and Redis PING with no 
  let calls=0;
  const r=await probe({},async(url,options)=>{
   calls++;
-  if(url.includes('/integrations/v1/me')){assert.equal(options?.method,undefined);return response({portalId:149580868});}
+  if(url.includes('/account-info/2025-09/details')){assert.equal(options?.method,undefined);return response({portalId:149580868});}
   if(url.includes('/crm/v3/pipelines/deals/default')){assert.equal(options?.method,undefined);return response({stages:[{id:'6244753599',label:'New Lead',archived:false,metadata:{isClosed:'false'}}]});}
   assert.equal(url,'https://example.test');
   assert.equal(options?.method,'POST');
@@ -55,10 +55,27 @@ test('diagnostic confirms test account, valid open stage and Redis PING with no 
 });
 test('diagnostic rejects closed stage and reports safe status only',async()=>{
  const r=await probe({},async(url)=>{
-  if(url.includes('/integrations/v1/me'))return response({portalId:149580868});
+  if(url.includes('/account-info/2025-09/details'))return response({portalId:149580868});
   if(url.includes('/crm/v3/pipelines/'))return response({stages:[{id:'6244753599',label:'New Lead',metadata:{isClosed:'true'}}]});
   return response({result:'PONG'});
  });
  assert.equal(r.code,424);assert.equal(r.output.newLeadOpen,false);
  assert.equal(JSON.stringify(r.output).includes('fake-test-token'),false);
+});
+
+test('legacy identity 401 is not mistaken for invalid CRM permissions',async()=>{
+ let calls=0;
+ const r=await probe({},async(url,options)=>{
+  calls++;
+  if(url.includes('/account-info/2025-09/details')||url.includes('/integrations/v1/me'))return response({},401);
+  if(url.includes('/crm/v3/pipelines/deals/default'))return response({stages:[{id:'6244753599',label:'New Lead',archived:false,metadata:{isClosed:'false'}}]});
+  assert.equal(options.method,'POST');
+  return response({result:'PONG'});
+ });
+ assert.equal(calls,4);
+ assert.equal(r.code,424);
+ assert.equal(r.output.status,'hubspot_identity_unverified');
+ assert.equal(r.output.pipelineReadable,true);
+ assert.equal(r.output.testAccount,null);
+ assert.equal(r.output.writesEnabled,false);
 });
