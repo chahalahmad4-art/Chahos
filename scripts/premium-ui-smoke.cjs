@@ -117,7 +117,7 @@ const errors=[];
     assert.ok(emphasized.length>0,'no title highlights in '+route);
     for(const e of emphasized){
      assert.equal(e.style,'normal','decorative italic survived on '+route+' at '+width+': '+e.text);
-     assert.doesNotMatch(e.family,/Georgia|Times New Roman|serif\s*$/i,'serif survived on '+route+' at '+width+': '+e.text);
+     assert.doesNotMatch(e.family,/Georgia|Times New Roman|(?:^|,\\s*)serif\\s*$/i,'serif survived on '+route+' at '+width+': '+e.text);
     }
     if(route==='/index.html'){
      const second=await page.locator('.service-headline-second').evaluate(el=>({
