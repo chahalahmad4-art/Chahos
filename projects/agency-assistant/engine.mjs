@@ -16,7 +16,7 @@ export function validateEnquiry(body){
  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))throw new Error('Check your email address.');
  if(!services.includes(service))throw new Error('Select an available service.');
  if(!/^[a-f0-9-]{36}$/i.test(body.requestId||''))throw new Error('Invalid request reference.');
- return {name,email,brief,service,consent:true,confirmed:true,requestId:body.requestId};
+ return {name,email,brief,service,consent:true,confirmed:true,requestId:body.requestId.toLowerCase()};
 }
 
 // A short ambiguous follow-up should preserve the client's previous language.

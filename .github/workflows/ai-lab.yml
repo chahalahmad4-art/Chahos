@@ -1,9 +1,9 @@
 name: AI Lab regression and safety
 on:
   push:
-    paths: ['public/assistant/**', 'projects/agency-assistant/**', 'api/**', 'public/ai-lab/**', 'projects/ai-lab/**', '.github/workflows/ai-lab.yml']
+    paths: ['public/assistant/**', 'public/booking*', 'public/book-project.html', 'public/enquiry-client.mjs', 'projects/agency-assistant/**', 'api/**', 'public/ai-lab/**', 'projects/ai-lab/**', '.github/workflows/ai-lab.yml']
   pull_request:
-    paths: ['public/assistant/**', 'projects/agency-assistant/**', 'api/**', 'public/ai-lab/**', 'projects/ai-lab/**', '.github/workflows/ai-lab.yml']
+    paths: ['public/assistant/**', 'public/booking*', 'public/book-project.html', 'public/enquiry-client.mjs', 'projects/agency-assistant/**', 'api/**', 'public/ai-lab/**', 'projects/ai-lab/**', '.github/workflows/ai-lab.yml']
 permissions:
   contents: read
 jobs:
