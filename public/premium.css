@@ -31,7 +31,7 @@ h1,h2,h3{font-feature-settings:"kern" 1}
   align-items:center;gap:clamp(30px,5vw,76px);
   width:min(1380px,94%);min-height:690px;
   padding:clamp(48px,6.6vw,96px) clamp(24px,5.2vw,76px);
-  margin:24px auto 0;
+  margin:14px auto 0;
   background:radial-gradient(circle at 96% 7%,rgba(199,226,159,.6),transparent 33%),linear-gradient(125deg,#faf9f2 18%,#edf2e5 100%);
   border:1px solid rgba(22,69,52,.09);border-radius:32px;overflow:hidden;
 }
@@ -81,28 +81,34 @@ h1,h2,h3{font-feature-settings:"kern" 1}
 .business-preview .mini-site{background:radial-gradient(ellipse at 108% 10%,#e1edbd 0%,transparent 66%)}
 .business-preview .flow-step{border-color:#d2ddca}
 .business-preview .preview-tabs button:focus-visible{outline:3px solid #f5fcda;outline-offset:2px}
-/* Immediate routes to business outcomes, not invented client proof or conversion stats. */
-.pathways{padding:46px 0 76px}
-.pathways-heading{display:flex;align-items:end;justify-content:space-between;gap:30px;margin-bottom:26px}
-.pathways .eyebrow{color:#5c7867;margin-bottom:12px;font-size:.72rem}
-.pathways h2{font-size:clamp(2rem,3vw,3.25rem);font-weight:760;letter-spacing:-.053em}
-.pathways-heading>p{font-size:.9rem;color:#68776a;max-width:310px;line-height:1.75}
-.pathways-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
-.pathway{
-  position:relative;display:flex;flex-direction:column;align-items:flex-start;min-height:210px;
-  padding:25px 27px;border-radius:19px;border:1px solid var(--studio-outline);
-  background:#fffef9;overflow:hidden;box-shadow:0 14px 38px -38px rgba(17,52,36,.5);
-  transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease;
+/* A compact, prominent site directory above the long-form homepage. */
+.site-guide{
+ width:min(1380px,94%);margin:15px auto 0;
+ padding:18px clamp(16px,2.5vw,29px) 21px;
+ background:#fffef9;border:1px solid #d9e4d6;border-radius:22px;
+ box-shadow:0 13px 32px -34px rgba(8,56,37,.45);
 }
-.pathway:hover{transform:translateY(-4px);border-color:#90b095;box-shadow:var(--studio-shadow)}
-.pathway-number{font-size:.72rem;letter-spacing:.12em;color:#688071;font-weight:800}
-.pathway-title{font-size:1.4rem;line-height:1.15;font-weight:750;letter-spacing:-.04em;margin:21px 0 10px}
-.pathway-description{color:#577064;font-size:.88rem;line-height:1.7;max-width:310px;padding-right:16px}
-.pathway-arrow{position:absolute;right:24px;top:22px;display:grid;place-items:center;border:1px solid #d5e1d1;width:34px;height:34px;border-radius:50%;font-size:1rem;transition:transform .22s ease}
-.pathway:hover .pathway-arrow{transform:translate(2px,-2px)}
-.pathway--highlight{background:var(--studio-leaf);border-color:#d2e2a4}
-.pathway--highlight .pathway-number,.pathway--highlight .pathway-description{color:#43604c}
-.pathway--highlight .pathway-arrow{border-color:#b4cb90}
+.site-guide-heading{display:flex;gap:24px;justify-content:space-between;align-items:end;margin-bottom:15px}
+.site-guide-heading .eyebrow{font-size:.65rem;letter-spacing:.12em;color:#5e806b;margin:0 0 4px}
+.site-guide h2{font-size:clamp(1.3rem,2.05vw,1.75rem);font-weight:790;letter-spacing:-.047em;line-height:1.2}
+.site-guide-hint{font-size:.76rem;color:#607968;line-height:1.5;max-width:260px;text-align:right}
+.site-guide-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.site-guide-link{
+ display:flex;align-items:center;gap:12px;min-width:0;min-height:69px;
+ padding:12px 14px;background:#f6f8f1;border:1px solid #e0e8da;border-radius:12px;
+ color:#184636;transition:background .2s ease,border-color .2s ease,transform .2s ease;
+}
+.site-guide-link:hover{background:#eaf1de;border-color:#b6cda8;transform:translateY(-2px)}
+.site-guide-link:focus-visible{outline:3px solid #70a34c;outline-offset:2px}
+.site-guide-index{flex:0 0 auto;color:#668776;font-size:.68rem;font-weight:850;letter-spacing:.07em}
+.site-guide-info{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.site-guide-info strong{font-size:.9rem;font-weight:790;letter-spacing:-.028em;line-height:1.22}
+.site-guide-info small{font-size:.7rem;line-height:1.4;color:#5c7466}
+.site-guide-arrow{flex:0 0 auto;margin-left:auto;align-self:center;color:#3a7050;font-size:1.1rem;transition:transform .2s ease}
+.site-guide-link:hover .site-guide-arrow{transform:translate(2px,-2px)}
+.site-guide-link--action{background:#dcebaa;border-color:#cbdda1}
+.site-guide-link--action:hover{background:#ecf5c6;border-color:#bbd58a}
+.site-guide-link--action .site-guide-index,.site-guide-link--action .site-guide-info small{color:#48664d}
 /* Services and work — tactile restrained cards. */
 .section-head h2 em,.gallery-hero h1 em{font-family:Georgia,"Times New Roman",serif;font-style:italic;font-weight:400;letter-spacing:-.058em;color:#397150}
 .agency-story{position:relative;background:linear-gradient(115deg,#133f32,#0d3028);overflow:hidden}
@@ -178,12 +184,9 @@ footer.wrap{color:#2c5441}
  .hero.hero-clear.hero-connected h1{font-size:clamp(3.15rem,9.6vw,5rem);line-height:1.05}
  .hero.hero-clear.hero-connected .intro{font-size:1.035rem;max-width:610px}
  .business-preview{width:100%;max-width:610px;margin:0 auto}
- .pathways{padding-top:40px;padding-bottom:64px}
- .pathways-grid{grid-template-columns:1fr;gap:12px}
- .pathways-heading{align-items:flex-start;flex-direction:column;gap:10px}
- .pathways-heading>p{max-width:550px}
- .pathway{min-height:156px;padding:22px 24px}
- .pathway-title{margin:13px 0 7px}
+ .site-guide{width:94%;padding:17px 19px}
+ .site-guide-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .site-guide-hint{max-width:210px}
  .services-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
  .service-card{min-height:300px;padding:22px}
  .case-grid{grid-template-columns:1fr}
@@ -206,10 +209,16 @@ footer.wrap{color:#2c5441}
  .hero.hero-clear.hero-connected .hero-actions{align-items:stretch;flex-direction:column;max-width:430px}
  .hero-connected .hero-actions .button{width:100%;min-height:52px}
  .hero-connected .hero-note{font-size:.75rem}
- .pathways{width:88%;padding-top:44px;padding-bottom:64px}
- .pathways h2{font-size:2.15rem}
- .pathways-heading>p{font-size:.86rem}
- .pathway{min-height:160px}
+ .site-guide{width:100%;margin:0;border-radius:0;border-top:0;padding:17px 5% 18px}
+ .site-guide-heading{align-items:start;gap:7px;flex-direction:column;margin-bottom:13px}
+ .site-guide h2{font-size:1.45rem;letter-spacing:-.037em}
+ .site-guide-hint{font-size:.75rem;text-align:left;max-width:100%}
+ .site-guide-grid{gap:8px}
+ .site-guide-link{min-height:79px;padding:11px;gap:8px;border-radius:12px}
+ .site-guide-index{font-size:.61rem}
+ .site-guide-info strong{font-size:.84rem}
+ .site-guide-info small{font-size:.68rem}
+ .site-guide-arrow{font-size:1rem}
  .agency-story{padding-top:60px}
  .services-grid{grid-template-columns:1fr;gap:12px}
  .service-card{min-height:0;padding:23px 24px 28px}
@@ -233,10 +242,12 @@ footer.wrap{color:#2c5441}
  .business-preview{padding:14px;border-radius:21px}
  .preview-tabs button{font-size:.66rem}
  .mini-site,.mini-dashboard,.mini-flow{padding:20px}
- .pathway-description{font-size:.84rem}
+ .site-guide-link{min-height:88px;padding:9px;gap:7px}
+ .site-guide-info strong{font-size:.79rem}
+ .site-guide-info small{font-size:.65rem}
  .contact-button{white-space:normal}
 }
 @media(prefers-reduced-motion:reduce){
- .pathway,.service-card,.case-card,.card-visual img,.pathway-arrow{transition:none!important;transform:none!important}
+ .site-guide-link,.site-guide-arrow,.service-card,.case-card,.card-visual img{transition:none!important;transform:none!important}
  .hero.hero-clear.hero-connected{scroll-behavior:auto}
 }
