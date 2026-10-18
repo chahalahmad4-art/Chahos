@@ -106,3 +106,29 @@ test('manual booking and WhatsApp logic are untouched',()=>{
  assert.match(h,/id="whatsapp-fallback"/);
  assert.match(h,/href="https:\/\/wa\.me\/96171727712"/);
 });
+
+test('premium display typography is consistent across all Chahos agency pages',()=>{
+ const pages=[
+ ['public/index.html','studio-typography.css'],
+ ['public/services.html','studio-typography.css'],
+ ['public/book-project.html','studio-typography.css'],
+ ['public/ai-projects.html','studio-typography.css'],
+ ['public/assistant/index.html','../studio-typography.css'],
+ ['public/ai-lab/index.html','../studio-typography.css']
+ ];
+ for(const [page,href] of pages){
+  const html=read(page);
+  assert.equal(html.split('href="'+href+'"').length-1,1,page+' typography stylesheet');
+  const em=(html.match(/<em>/g)||[]).length;
+  assert.ok(em>0,page+' contains emphasized heading');
+ }
+ const css=read('public/studio-typography.css');
+ assert.match(css,/font-style:normal!important/);
+ assert.match(css,/font-family:var\(--chaho-type\)!important/);
+ assert.doesNotMatch(css,/@import|url\(/,'no network font downloads');
+ assert.match(css,/\.agency-story,\.contact,\.studio-footer/);
+ const home=read('public/index.html');
+ assert.match(home,/Smarter business\.<\/em>/);
+ assert.match(home,/Built to work\.<\/em>/);
+ assert.match(home,/next step\?<\/em>/);
+});
