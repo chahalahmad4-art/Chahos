@@ -37,9 +37,17 @@ const errors=[];
    assert.equal(await page.locator('#about-chahos .story-book').count(),1,'green Meet Chahos CTA');
    assert.equal(await page.locator('#contact .contact-quick-grid > div').count(),4,'contact details only at very end');
    assert.equal(await page.locator('.industry-tile').count(),0,'no examples on homepage');
-   assert.equal(await page.locator('.hero-benefit[lang="ar"][dir="rtl"]').count(),1,'Arabic benefit is RTL');
+   assert.equal(await page.locator('.hero-benefit').count(),0,'decorative Arabic removed');
+   assert.equal(await page.locator('.quick-keys a[href="#contact"]').filter({hasText:'Who’s Chahos'}).count(),1,'Who’s Chahos targets contact');
+   const typography=await page.locator('.service-headline-second').evaluate(el=>({style:getComputedStyle(el).fontStyle,family:getComputedStyle(el).fontFamily}));
+   assert.equal(typography.style,'normal','headline is no longer artificial italic');
+   assert.ok(!/Georgia/i.test(typography.family),'service heading uses clean sans');
+
    const positions=await page.evaluate(()=>['#home-intro','#services','#about-chahos','#contact'].map(sel=>document.querySelector(sel).getBoundingClientRect().top+scrollY));
    assert.deepEqual(positions,[...positions].sort((a,b)=>a-b),'proper homepage hierarchy');
+   await page.locator('.quick-keys a[href="#contact"]').click();
+   assert.equal(new URL(page.url()).hash,'#contact','Who’s Chahos opens named contact details');
+   assert.equal(await page.locator('#contact').getByText('Ahmad Chahal').count(),1);
    await page.locator('.quick-keys a[href="#services"]').click();
    assert.equal(new URL(page.url()).hash,'#services');
    await page.locator('#services .section-back').click();
@@ -77,6 +85,21 @@ const errors=[];
      assert.equal(await page.locator('#industry option[value="fitness"]').count(),1);
      assert.ok((await page.locator('#project-form').textContent()).includes('Continue to WhatsApp'));
     }else assert.equal(await page.locator('.experience-card').count(),8);
+    await page.close();
+   }
+  }
+  for(const route of ['/ai-projects.html','/assistant/','/ai-lab/']){
+   for(const width of [390,1440]){
+    const page=await browser.newPage({viewport:{width,height:844}});
+    await page.goto(base+route,{waitUntil:'domcontentloaded'});
+    const back=page.getByRole('link',{name:'Back to Chahos Agency home'});
+    assert.equal(await back.isVisible(),true,route+' floating Back missing at '+width);
+    const style=await back.evaluate(el=>({position:getComputedStyle(el).position,height:el.getBoundingClientRect().height}));
+    assert.equal(style.position,'fixed');
+    assert.ok(style.height>=44,'Back touch target meets 44px');
+    assert.equal(await page.locator('header .back').isVisible(),true,route+' header back missing');
+    await back.click();
+    assert.ok(page.url().endsWith('/index.html'),route+' Back did not return to agency');
     await page.close();
    }
   }
