@@ -1,0 +1,49 @@
+name: Premium agency UI QA
+on:
+  push:
+    paths:
+      - 'public/index.html'
+      - 'public/services.html'
+      - 'public/book-project.html'
+      - 'public/premium.css'
+      - 'public/upgrade.js'
+      - 'scripts/premium-ui.test.mjs'
+      - 'scripts/premium-ui-smoke.cjs'
+      - '.github/workflows/premium-ui.yml'
+  pull_request:
+    paths:
+      - 'public/index.html'
+      - 'public/services.html'
+      - 'public/book-project.html'
+      - 'public/premium.css'
+      - 'public/upgrade.js'
+      - 'scripts/premium-ui.test.mjs'
+      - 'scripts/premium-ui-smoke.cjs'
+      - '.github/workflows/premium-ui.yml'
+permissions:
+  contents: read
+jobs:
+  static-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node --test scripts/premium-ui.test.mjs
+      - run: node --check public/upgrade.js
+  mobile-desktop-browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm install --no-save --no-package-lock playwright@1.58.2
+      - run: npx playwright install --with-deps chromium
+      - run: node scripts/premium-ui-smoke.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: premium-ui-previews
+          path: artifacts/premium-*.png
