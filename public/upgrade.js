@@ -6,7 +6,7 @@
   let current=0,paused=reduce.matches,hovered=false,focused=false;
   function show(i){current=i;tabs.forEach((t,j)=>{t.setAttribute('aria-selected',String(i===j));t.tabIndex=i===j?0:-1;panels[j].hidden=i!==j})}
   function label(){motion.textContent=paused?'Play animation':'Pause animation';motion.setAttribute('aria-pressed',String(paused))}
-  tabs.forEach((tab,i)=>{tab.addEventListener('click',()=>show(i));tab.addEventListener('keydown',e=>{let next=i;if(e.key==='ArrowRight')next=(i+1)%3;else if(e.key==='ArrowLeft')next=(i+2)%3;else if(e.key==='Home')next=0;else if(e.key==='End')next=2;else return;e.preventDefault();show(next);tabs[next].focus()})});
+  tabs.forEach((tab,i)=>{tab.addEventListener('click',()=>{show(i);paused=true;label()});tab.addEventListener('keydown',e=>{let next=i;if(e.key==='ArrowRight')next=(i+1)%3;else if(e.key==='ArrowLeft')next=(i+2)%3;else if(e.key==='Home')next=0;else if(e.key==='End')next=2;else return;e.preventDefault();show(next);paused=true;label();tabs[next].focus()})});
   motion.addEventListener('click',()=>{paused=!paused;label()});root.addEventListener('mouseenter',()=>hovered=true);root.addEventListener('mouseleave',()=>hovered=false);root.addEventListener('focusin',()=>focused=true);root.addEventListener('focusout',e=>focused=root.contains(e.relatedTarget));reduce.addEventListener('change',()=>{paused=reduce.matches;label()});
   setInterval(()=>{if(!paused&&!hovered&&!focused&&!document.hidden)show((current+1)%3)},4500);label();
  }
