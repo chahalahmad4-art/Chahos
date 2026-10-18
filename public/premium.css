@@ -134,7 +134,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid #6d
 .process-grid article p{font-size:.88rem;color:#657567;line-height:1.65}
 .process .section-back{margin-top:9px}
 /* The only contact area is the footer; no intermediary grid of four boxed contacts. */
-.studio-footer{background:#eef2e8;border-top:1px solid #d3dfcf;padding:76px 0 20px;color:#173f32}
+.studio-footer{display:block;background:#eef2e8;border-top:1px solid #d3dfcf;padding:76px 0 20px;color:#173f32}
 .studio-footer-inner{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,.7fr);gap:10%;align-items:start}
 .studio-footer-intro .eyebrow{margin-bottom:20px;color:#60796a}
 .studio-footer h2{font-size:clamp(2.8rem,4.6vw,5.7rem);line-height:1.04;margin:0 0 25px}
