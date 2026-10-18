@@ -1,0 +1,42 @@
+/* CHAHOS / TYPOGRAPHY SYSTEM
+   One considered display font across our agency pages.
+   No remote fonts: uses the device's best native sans serif.
+   Demo sites intentionally retain their own brand typography. */
+:root{
+  --chaho-type: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, Helvetica, sans-serif;
+  --chaho-display-green: #3a7453;
+  --chaho-display-lime: #dcebaa;
+}
+body{font-family:var(--chaho-type);text-rendering:optimizeLegibility}
+:is(h1,h2,h3,h4){
+  font-family:var(--chaho-type);
+  font-optical-sizing:auto;
+}
+/* Previous decorative <em> styles used Georgia italic, including on iPhone.
+   Keep the intentional green/lime emphasis, never the artificial swash. */
+html body :is(h1,h2,h3,h4) em{
+  font-family:var(--chaho-type)!important;
+  font-style:normal!important;
+  font-weight:650!important;
+  letter-spacing:-.052em!important;
+  line-height:inherit;
+  color:var(--chaho-display-green);
+}
+html body :is(.agency-story,.contact,.studio-footer) :is(h1,h2,h3,h4) em{
+  color:var(--chaho-display-lime);
+}
+/* Non-italic service heading still inherits the same face. */
+html body .service-overview .section-head .service-headline-second{
+  font-family:var(--chaho-type)!important;
+  font-style:normal!important;
+  font-weight:660!important;
+  letter-spacing:-.05em;
+}
+/* Support Arabic labels/chat independently of the English display headings. */
+:lang(ar),:lang(ar-LB),[dir="rtl"]{
+  font-family:-apple-system,BlinkMacSystemFont,"Geeza Pro","Noto Sans Arabic","Segoe UI",Tahoma,Arial,sans-serif;
+}
+/* Decorative underline/shadow not introduced; preserve text clarity and input usability. */
+@media(max-width:760px){
+  html body :is(h1,h2,h3,h4) em{letter-spacing:-.046em!important}
+}
