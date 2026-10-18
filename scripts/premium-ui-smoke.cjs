@@ -40,7 +40,8 @@ const errors=[];
    assert.ok(h.scroll<=h.inner+2,'homepage horizontal overflow '+width+': '+JSON.stringify(h));
    if(width<=760){
     assert.equal(await page.locator('.mobile-project-cta').isVisible(),true);
-    const button=page.getByRole('button',{name:'Open navigation'});
+    const button=page.locator('.menu');
+    assert.equal(await button.getAttribute('aria-label'),'Open navigation');
     await button.click();
     assert.equal(await button.getAttribute('aria-expanded'),'true');
     await page.keyboard.press('Escape');
