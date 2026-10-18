@@ -29,23 +29,53 @@ test('homepage retains unique accessible navigation, AI and primary actions',()=
  assert.match(home,/id="selected-work"[^>]*hidden/);
  assert.match(home,/id="client-feedback"[^>]*hidden/);
 });
-test('top-level site guide exposes all six routes without scrolling to the end',()=>{
+test('homepage prioritizes introduction, services, agency CTA, discovery, and contact',()=>{
  const html=read('public/index.html');
- const begin=html.indexOf('<section id="site-guide"');
- const hero=html.indexOf('<section class="hero hero-clear hero-connected');
- assert.ok(begin>0&&begin<hero,'guide must appear before hero');
- const region=html.slice(begin,hero);
- assert.match(region,/aria-labelledby="site-guide-title"/);
- assert.match(region,/aria-label="Explore the website"/);
- assert.equal((region.match(/class="site-guide-link(?: site-guide-link--action)?"/g)||[]).length,6);
- for(const href of ['#services','services.html','#case-studies','ai-projects.html','#how-we-work','book-project.html'])
-  assert.ok(region.includes('href="'+href+'"'),'missing site route '+href);
- for(const anchor of ['services','case-studies','how-we-work'])
-  assert.ok(html.includes('id="'+anchor+'"'),'missing anchor '+anchor);
- assert.match(html,/class="return-button" href="#site-guide"/);
- assert.doesNotMatch(html,/class="pathways wrap"/);
- assert.doesNotMatch(region,/(100\+|five stars|guaranteed results|trusted by thousands)/i);
+ const ids=['home-intro','services','about-chahos','explore','how-we-work','contact'];
+ const indexes=ids.map(id=>html.indexOf('id="'+id+'"'));
+ assert.ok(indexes.every(i=>i>=0),'every section has a jump target');
+ assert.deepEqual(indexes,[...indexes].sort((a,b)=>a-b),'critical content appears first');
+ const introduction=html.slice(indexes[0],indexes[1]);
+ assert.match(introduction,/We’re Chahos Agency/);
+ assert.match(introduction,/Start your project/);
+ const service=html.slice(indexes[1],indexes[2]);
+ assert.equal((service.match(/class="service-card service-card--link/g)||[]).length,4);
+ const about=html.slice(indexes[2],indexes[3]);
+ assert.match(about,/MEET CHAHOS AGENCY/);
+ assert.match(about,/class="story-book" href="book-project.html"/);
+ const explore=html.slice(indexes[3],indexes[4]);
+ assert.equal((explore.match(/class="industry-tile industry-tile--/g)||[]).length,8);
+ assert.match(explore,/class="solution-preview"/);
+ assert.match(explore,/details id="solution-preview"/);
+ assert.match(html,/id="proof-grid"/);
+ assert.match(html,/id="feedback-grid"/);
+ assert.equal((html.match(/class="section-back(?: section-back--light)?"/g)||[]).length,5);
+ const contact=html.slice(indexes[5]);
+ for(const value of ['Ahmad Chahal','+961 71 727 712','@chahosagency'])assert.ok(contact.includes(value));
+ assert.doesNotMatch(html,/id="site-guide"/);
 });
+test('top keyword navigation gives direct access without duplicating a giant guide',()=>{
+ const html=read('public/index.html');
+ const begin=html.indexOf('<nav class="quick-keys wrap"');
+ const hero=html.indexOf('id="home-intro"');
+ assert.ok(begin>0&&begin<hero);
+ const keys=html.slice(begin,hero);
+ assert.match(keys,/aria-label="Quick navigation"/);
+ for(const href of ['#home-intro','#services','#about-chahos','#explore','ai-projects.html','#how-we-work','#contact','book-project.html'])
+  assert.ok(keys.includes('href="'+href+'"'),href);
+ assert.match(html,/class="return-button" href="#top"/);
+});
+test('every industry image links to a real existing demo and remains labelled illustrative',()=>{
+ const {existsSync}=requireLikeFs();
+ const html=read('public/index.html');
+ const explore=html.slice(html.indexOf('id="explore"'),html.indexOf('id="how-we-work"'));
+ for(const key of ['fitness','clinic','architecture','creative','fashion','pharmacy','food','gifts']){
+  assert.ok(explore.includes('href="samples/'+key+'/"'),'missing '+key);
+  assert.ok(existsSync('public/samples/'+key+'/index.html'),'demo files for '+key);
+ }
+ assert.match(explore,/Demos only — not client projects/);
+});
+function requireLikeFs(){return {existsSync:(path)=>{try{return !!read(path)}catch{return false}}};}
 test('no new remote assets or tracking, and reduced motion is honored',()=>{
  const css=read('public/premium.css');
  assert.doesNotMatch(css,/@import|url\(\s*["']?https?:/i);
