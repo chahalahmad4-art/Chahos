@@ -1,0 +1,33 @@
+name: Site integrity and SEO checks
+on:
+  push:
+    paths:
+      - 'public/book-project.html'
+      - 'public/sitemap.xml'
+      - 'public/ai-projects.html'
+      - 'public/assistant/index.html'
+      - 'public/ai-lab/index.html'
+      - 'public/index.html'
+      - 'scripts/site-integrity.test.mjs'
+      - '.github/workflows/site-integrity.yml'
+  pull_request:
+    paths:
+      - 'public/book-project.html'
+      - 'public/sitemap.xml'
+      - 'public/ai-projects.html'
+      - 'public/assistant/index.html'
+      - 'public/ai-lab/index.html'
+      - 'public/index.html'
+      - 'scripts/site-integrity.test.mjs'
+      - '.github/workflows/site-integrity.yml'
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node --test scripts/site-integrity.test.mjs
