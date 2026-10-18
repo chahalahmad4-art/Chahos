@@ -31,19 +31,21 @@ const errors=[];
    const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1});
    page.on('pageerror',e=>errors.push('home '+width+': '+e.message));
    await page.goto(base+'/index.html',{waitUntil:'networkidle'});
-   assert.equal(await page.locator('main > section').count(),4,'four homepage sections at '+width);
+   assert.equal(await page.locator('main > section').count(),6,'six compact homepage sections at '+width);
    assert.equal(await page.locator('.quick-keys a').count(),8,'quick links to separate pages');
    assert.equal(await page.locator('.service-overview .service-card').count(),4,'four clear service cards');
    assert.equal(await page.locator('#about-chahos .story-book').count(),1,'green Meet Chahos CTA');
    assert.equal(await page.locator('#contact .contact-quick-grid > div').count(),4,'contact details only at very end');
-   assert.equal(await page.locator('.industry-tile').count(),0,'no examples on homepage');
+   assert.equal(await page.locator('.industry-tile').count(),0,'no eight-demo gallery on homepage');
+   assert.equal(await page.locator('#selected-work .selected-work-item').count(),3,'three featured work rows');
+   assert.equal(await page.locator('#process .mini-process-steps li').count(),3,'three simple steps');
    assert.equal(await page.locator('.hero-benefit').count(),0,'decorative Arabic removed');
    assert.equal(await page.locator('.quick-keys a[href="#contact"]').filter({hasText:'Who’s Chahos'}).count(),1,'Who’s Chahos targets contact');
    const typography=await page.locator('.service-headline-second').evaluate(el=>({style:getComputedStyle(el).fontStyle,family:getComputedStyle(el).fontFamily}));
    assert.equal(typography.style,'normal','headline is no longer artificial italic');
    assert.ok(!/Georgia/i.test(typography.family),'service heading uses clean sans');
 
-   const positions=await page.evaluate(()=>['#home-intro','#services','#about-chahos','#contact'].map(sel=>document.querySelector(sel).getBoundingClientRect().top+scrollY));
+   const positions=await page.evaluate(()=>['#home-intro','#services','#about-chahos','#selected-work','#process','#contact'].map(sel=>document.querySelector(sel).getBoundingClientRect().top+scrollY));
    assert.deepEqual(positions,[...positions].sort((a,b)=>a-b),'proper homepage hierarchy');
    await page.locator('.quick-keys a[href="#contact"]').filter({hasText:'Who’s Chahos'}).click();
    assert.equal(new URL(page.url()).hash,'#contact','Who’s Chahos opens named contact details');
@@ -125,6 +127,26 @@ const errors=[];
      }));
      assert.equal(second.style,'normal');
      assert.doesNotMatch(second.family,/Georgia|Times New Roman/);
+    }
+    await page.close();
+   }
+  }
+
+  for(const route of ['/work.html','/ar/','/ar/services.html']){
+   for(const width of [390,1440]){
+    const page=await browser.newPage({viewport:{width,height:844}});
+    page.on('pageerror',err=>errors.push(route+' '+width+': '+err.message));
+    await page.goto(base+route,{waitUntil:'domcontentloaded'});
+    const dims=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,inner:innerWidth}));
+    assert.ok(dims.scroll<=dims.inner+2,route+' overflow: '+JSON.stringify(dims));
+    if(route==='/work.html'){
+     assert.equal(await page.locator('.work-case').count(),4,'four honest work case studies');
+     assert.equal(await page.locator('a[href="ai-lab/#sales"]').count(),1);
+    }else{
+     assert.equal(await page.locator('html').getAttribute('dir'),'rtl');
+     const dir=await page.evaluate(()=>getComputedStyle(document.body).direction);
+     assert.equal(dir,'rtl',route+' must have RTL text flow');
+     if(route==='/ar/services.html')assert.equal(await page.locator('.ar-gallery a').count(),8);
     }
     await page.close();
    }

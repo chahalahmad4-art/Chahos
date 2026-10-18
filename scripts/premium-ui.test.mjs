@@ -12,12 +12,12 @@ test('premium styling remains Preview-only on the homepage, gallery and booking'
  for(const p of ['public/assistant/index.html','public/ai-lab/index.html','public/ai-projects.html'])
   assert.doesNotMatch(read(p),/href="premium.css"/);
 });
-test('short homepage ends immediately after the dark agency and final contact',()=>{
+test('homepage adds concise work and process before contact',()=>{
  const h=home();
- const starts=['home-intro','services','about-chahos','contact'].map(id=>h.indexOf('id="'+id+'"'));
+ const starts=['home-intro','services','about-chahos','selected-work','process','contact'].map(id=>h.indexOf('id="'+id+'"'));
  assert.ok(starts.every(i=>i>=0));
  assert.deepEqual(starts,[...starts].sort((a,b)=>a-b));
- assert.equal((h.match(/<section\b/g)||[]).length,4,'exactly four public homepage sections');
+ assert.equal((h.match(/<section\b/g)||[]).length,6,'six concise public homepage sections');
  assert.doesNotMatch(h,/id="explore"|id="how-we-work"|id="solution-preview"/);
  assert.doesNotMatch(h,/class="industry-tile|class="industry-showcase"|class="process-grid"/);
  assert.match(h,/Creative ideas\.<br><em>Smarter business\.<\/em>/);
@@ -31,9 +31,9 @@ test('top shortcuts lead straight to independently served projects, assistant, a
  const end=h.indexOf('<section id="home-intro"',start);
  assert.ok(start>0&&end>start);
  const nav=h.slice(start,end);
- for(const href of ['#home-intro','#services','book-project.html','assistant/','ai-projects.html#tools','services.html#experiences','#contact'])
+ for(const href of ['#home-intro','#services','work.html','assistant/','ai-projects.html#tools','services.html#experiences','#contact','ar/'])
   assert.ok(nav.includes('href="'+href+'"'),'missing shortcut '+href);
- for(const p of ['public/book-project.html','public/assistant/index.html','public/ai-projects.html','public/services.html'])
+ for(const p of ['public/work.html','public/ar/index.html','public/ar/services.html','public/book-project.html','public/assistant/index.html','public/ai-projects.html','public/services.html'])
   assert.ok(existsSync(p),p);
  assert.match(read('public/ai-projects.html'),/id="tools"/);
  assert.match(read('public/services.html'),/id="experiences"/);
@@ -43,7 +43,7 @@ test('service cards remain clear, benefit-focused and accessible; all paths are 
  const h=home();
  const a=h.slice(h.indexOf('<section id="services"'),h.indexOf('<section id="about-chahos"'));
  assert.equal((a.match(/class="service-card service-card--link/g)||[]).length,4);
- assert.match(a,/Four ways we help you attract customers, save time and work smarter/);
+ assert.match(a,/Websites that explain your offer, systems that organize work/);
  for(const href of ['services.html','ai-projects.html'])assert.ok(a.includes('href="'+href+'"'));
  assert.match(h,/href="https:\/\/wa\.me\/96171727712"/);
  assert.match(h,/id="nav"/);
@@ -131,4 +131,41 @@ test('premium display typography is consistent across all Chahos agency pages',(
  assert.match(home,/Smarter business\.<\/em>/);
  assert.match(home,/Built to work\.<\/em>/);
  assert.match(home,/next step\?<\/em>/);
+});
+
+test('portfolio showcases three honest featured projects plus MATAR concept',()=>{
+ const h=home(),section=h.slice(h.indexOf('<section id="selected-work"'),h.indexOf('<section id="process"'));
+ assert.equal((section.match(/class="selected-work-item"/g)||[]).length,3);
+ for(const anchor of ['work.html#motiva','work.html#gym','work.html#leadflow','work.html#matar'])assert.ok(section.includes(anchor));
+ const portfolio=read('public/work.html');
+ for(const id of ['motiva','gym','leadflow','matar'])assert.ok(portfolio.includes('id="'+id+'"'));
+ assert.match(portfolio,/Working demo/);
+ assert.match(portfolio,/placeholder imagery/i);
+ assert.match(portfolio,/not independently verified/);
+ assert.doesNotMatch(portfolio,/guaranteed ROI|★★★★★/i);
+});
+test('work stages are clear and no unapproved prices are invented',()=>{
+ const h=home(),section=h.slice(h.indexOf('<section id="process"'),h.indexOf('<section id="contact"'));
+ for(const step of ['Discover','Design &amp; build','Launch'])assert.ok(section.includes(step));
+ assert.match(section,/Pricing depends on scope/);
+ assert.match(section,/book-project.html/);
+ assert.doesNotMatch(section,/\$\d+/);
+});
+test('professional Arabic homepage and services are full RTL translations',()=>{
+ const ar=read('public/ar/index.html'),services=read('public/ar/services.html');
+ for(const html of [ar,services]){
+  assert.match(html,/<html lang="ar" dir="rtl">/);
+  assert.match(html,/href="chahos-ar.css"/);
+  assert.match(html,/rel="canonical"/);
+  assert.match(html,/hreflang="en"/);
+ }
+ for(const name of ['حضور رقمي واضح','من أعمالنا','طريقة العمل','واتساب'])assert.ok(ar.includes(name));
+ assert.equal((services.match(/class="ar-gallery-tag"/g)||[]).length,8);
+ const sitemap=read('public/sitemap.xml');
+ for(const route of ['/work.html','/ar/','/ar/services.html'])assert.ok(sitemap.includes('https://chahosagency.vercel.app'+route));
+});
+test('first party Vercel Analytics is staged only on marketing pages',()=>{
+ for(const p of ['public/index.html','public/services.html','public/book-project.html','public/work.html','public/ar/index.html','public/ar/services.html'])
+  assert.match(read(p),/src="\/_vercel\/insights\/script.js"/);
+ assert.doesNotMatch(read('public/assistant/index.html'),/insights\/script.js/);
 });
