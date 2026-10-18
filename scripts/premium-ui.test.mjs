@@ -29,40 +29,38 @@ test('homepage retains unique accessible navigation, AI and primary actions',()=
  assert.match(home,/id="selected-work"[^>]*hidden/);
  assert.match(home,/id="client-feedback"[^>]*hidden/);
 });
-test('homepage prioritizes introduction, services, agency CTA, discovery, and contact',()=>{
+test('editorial homepage retains essentials in the right order',()=>{
  const html=read('public/index.html');
  const ids=['home-intro','services','about-chahos','explore','how-we-work','contact'];
  const indexes=ids.map(id=>html.indexOf('id="'+id+'"'));
- assert.ok(indexes.every(i=>i>=0),'every section has a jump target');
- assert.deepEqual(indexes,[...indexes].sort((a,b)=>a-b),'critical content appears first');
- const introduction=html.slice(indexes[0],indexes[1]);
- assert.match(introduction,/We’re Chahos Agency/);
- assert.match(introduction,/Start your project/);
- const service=html.slice(indexes[1],indexes[2]);
- assert.equal((service.match(/class="service-card service-card--link/g)||[]).length,4);
- const about=html.slice(indexes[2],indexes[3]);
- assert.match(about,/MEET CHAHOS AGENCY/);
- assert.match(about,/class="story-book" href="book-project.html"/);
- const explore=html.slice(indexes[3],indexes[4]);
- assert.equal((explore.match(/class="industry-tile industry-tile--/g)||[]).length,8);
- assert.match(explore,/class="solution-preview"/);
- assert.match(explore,/details id="solution-preview"/);
+ assert.ok(indexes.every(i=>i>=0),'all sections have a jump target');
+ assert.deepEqual(indexes,[...indexes].sort((x,y)=>x-y),'about, services and gallery should precede footer contact');
+ assert.match(html.slice(indexes[0],indexes[1]),/Chahos Agency designs memorable websites/);
+ assert.equal((html.slice(indexes[1],indexes[2]).match(/class="service-card"/g)||[]).length,4);
+ assert.match(html.slice(indexes[2],indexes[3]),/class="story-book" href="book-project.html"/);
+ const gallery=html.slice(indexes[3],indexes[4]);
+ assert.equal((gallery.match(/class="industry-tile(?: industry-tile--featured)?"/g)||[]).length,8);
+ assert.equal((gallery.match(/class="industry-tile industry-tile--featured"/g)||[]).length,2);
+ assert.match(gallery,/details id="solution-preview"/);
+ assert.match(gallery,/id="preview-tab-2"/);
  assert.match(html,/id="proof-grid"/);
  assert.match(html,/id="feedback-grid"/);
- assert.equal((html.match(/class="section-back(?: section-back--light)?"/g)||[]).length,5);
- const contact=html.slice(indexes[5]);
- for(const value of ['Ahmad Chahal','+961 71 727 712','@chahosagency'])assert.ok(contact.includes(value));
- assert.doesNotMatch(html,/id="site-guide"/);
+ assert.equal((html.match(/class="section-back(?: section-back--light)?"/g)||[]).length,4);
+ assert.equal((html.match(/<footer\b/g)||[]).length,1);
+ assert.doesNotMatch(html,/class="contact-quick-grid"|class="explore-action-icon"|class="hero-monogram"/);
+ const footer=html.slice(indexes[5]);
+ for(const value of ['Ahmad Chahal','+961 71 727 712','@chahosagency'])
+  assert.ok(footer.includes(value),'footer missing '+value);
 });
-test('top keyword navigation gives direct access without duplicating a giant guide',()=>{
+test('minimal keyword navigation directly links all sections',()=>{
  const html=read('public/index.html');
  const begin=html.indexOf('<nav class="quick-keys wrap"');
  const hero=html.indexOf('id="home-intro"');
  assert.ok(begin>0&&begin<hero);
- const keys=html.slice(begin,hero);
- assert.match(keys,/aria-label="Quick navigation"/);
+ const nav=html.slice(begin,hero);
+ assert.match(nav,/aria-label="Quick navigation"/);
  for(const href of ['#home-intro','#services','#about-chahos','#explore','ai-projects.html','#how-we-work','#contact','book-project.html'])
-  assert.ok(keys.includes('href="'+href+'"'),href);
+  assert.ok(nav.includes('href="'+href+'"'),'missing link '+href);
  assert.match(html,/class="return-button" href="#top"/);
 });
 test('every industry image links to a real existing demo and remains labelled illustrative',()=>{
