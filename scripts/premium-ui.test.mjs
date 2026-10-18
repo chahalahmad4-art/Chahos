@@ -71,7 +71,7 @@ test('every industry image links to a real existing demo and remains labelled il
   assert.ok(explore.includes('href="samples/'+key+'/"'),'missing '+key);
   assert.ok(existsSync('public/samples/'+key+'/index.html'),'demo files for '+key);
  }
- assert.match(explore,/Demos only — not client projects/);
+ assert.match(explore,/Not commissioned client work/);
 });
 function requireLikeFs(){return {existsSync:(path)=>{try{return !!read(path)}catch{return false}}};}
 test('no new remote assets or tracking, and reduced motion is honored',()=>{
