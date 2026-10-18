@@ -124,3 +124,20 @@
  .ar-site .ar-example img{height:130px}
 }
 @media(prefers-reduced-motion:reduce){.trust-item-visual img{transition:none}}
+
+/* Self-contained portfolio navigation, independent from homepage mobile menu. */
+.trust-topbar{display:flex;align-items:center;justify-content:space-between;gap:22px;flex-wrap:wrap;padding:20px 0;border-bottom:1px solid #d2decf}
+.trust-brand{font-weight:900;font-size:1.23rem;letter-spacing:-.06em}
+.trust-brand span{display:block;font-size:.59rem;letter-spacing:.26em;line-height:1.1;margin-top:3px}
+.trust-topbar>div{display:flex;align-items:center;gap:17px;flex-wrap:wrap}
+.trust-topbar>div>a{font-weight:770;font-size:.78rem;white-space:nowrap}
+.trust-topbar .trust-topbar-cta{background:#173f31;color:#f5f7ed;padding:12px 16px;border-radius:5px}
+.trust-standalone-footer{background:#eaf0e6;border-top:1px solid #d0dfcd;padding:30px 0;color:#476753;font-size:.78rem}
+.trust-standalone-footer .trust-page{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.trust-standalone-footer a{text-decoration:underline;text-underline-offset:5px;font-weight:770}
+.trust-home .header{z-index:90}
+@media(max-width:680px){
+.trust-topbar{padding:18px 0;gap:14px}
+.trust-topbar>div{gap:12px}
+.trust-topbar>div>a{font-size:.73rem}
+}
