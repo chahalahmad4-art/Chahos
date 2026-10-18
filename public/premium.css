@@ -529,3 +529,14 @@ footer.wrap{min-height:110px}
  .contact-quick-grid>div{padding:12px}
 }
 @media(prefers-reduced-motion:reduce){.quick-keys a{transition:none}}
+
+/* Final typography review: keep the approved layout, lose the synthetic italic heading.
+   This uses the same system family as the rest of Chahos; no remote font loading. */
+.service-overview .section-head .service-headline-second{
+ display:inline;font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+ font-size:inherit;font-style:normal;font-weight:720;letter-spacing:-.05em;
+ color:#3a7154;
+}
+@media(max-width:760px){
+ .service-overview .section-head .service-headline-second{font-weight:730}
+}
