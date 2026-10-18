@@ -540,3 +540,10 @@ footer.wrap{min-height:110px}
 @media(max-width:760px){
  .service-overview .section-head .service-headline-second{font-weight:730}
 }
+
+/* Unified Chahos editorial typography: refined, readable sans instead of faux italic serif. */
+.hero.hero-clear.hero-connected h1 em,.section-head h2 em,.gallery-hero h1 em,.agency-story h2 em,.contact h2 em,.booking-intro h1 em,.explore-intro h2 em,.hero-monogram-big{
+ font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+ font-style:normal;font-weight:730;letter-spacing:-.045em;
+}
+.hero-monogram-big{font-weight:800;letter-spacing:-.08em}
