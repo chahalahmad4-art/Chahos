@@ -45,7 +45,7 @@ const errors=[];
 
    const positions=await page.evaluate(()=>['#home-intro','#services','#about-chahos','#contact'].map(sel=>document.querySelector(sel).getBoundingClientRect().top+scrollY));
    assert.deepEqual(positions,[...positions].sort((a,b)=>a-b),'proper homepage hierarchy');
-   await page.locator('.quick-keys a[href="#contact"]').click();
+   await page.locator('.quick-keys a[href="#contact"]').filter({hasText:'Who’s Chahos'}).click();
    assert.equal(new URL(page.url()).hash,'#contact','Who’s Chahos opens named contact details');
    assert.equal(await page.locator('#contact').getByText('Ahmad Chahal').count(),1);
    await page.locator('.quick-keys a[href="#services"]').click();
