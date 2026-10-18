@@ -31,39 +31,27 @@ const errors=[];
    const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1});
    page.on('pageerror',e=>errors.push('home '+width+': '+e.message));
    await page.goto(base+'/index.html',{waitUntil:'networkidle'});
-   assert.equal(await page.locator('.quick-keys a').count(),8,'eight quick keywords');
-   assert.equal(await page.locator('.service-overview .service-card').count(),4,'four featured services');
-   assert.equal(await page.locator('.industry-tile').count(),8,'eight image-based industry demos');
-   assert.equal(await page.locator('.section-back').count(),4,'content sections retain back links');
-   const heroTop=await page.locator('#home-intro').boundingBox();
-   const servicesTop=await page.locator('#services').boundingBox();
-   const meetTop=await page.locator('#about-chahos').boundingBox();
-   const discoverTop=await page.locator('#explore').boundingBox();
-   assert.ok(heroTop&&servicesTop&&meetTop&&discoverTop);
-   assert.ok(heroTop.y<servicesTop.y&&servicesTop.y<meetTop.y&&meetTop.y<discoverTop.y,'intro and services come first');
-   const quick=await page.locator('.quick-keys').boundingBox();
-   assert.ok(quick&&quick.y<150,'quick jump keywords must appear at top');
+   assert.equal(await page.locator('main > section').count(),4,'four homepage sections at '+width);
+   assert.equal(await page.locator('.quick-keys a').count(),8,'quick links to separate pages');
+   assert.equal(await page.locator('.service-overview .service-card').count(),4,'four clear service cards');
+   assert.equal(await page.locator('#about-chahos .story-book').count(),1,'green Meet Chahos CTA');
+   assert.equal(await page.locator('#contact .contact-quick-grid > div').count(),4,'contact details only at very end');
+   assert.equal(await page.locator('.industry-tile').count(),0,'no examples on homepage');
+   assert.equal(await page.locator('.hero-benefit[lang="ar"][dir="rtl"]').count(),1,'Arabic benefit is RTL');
+   const positions=await page.evaluate(()=>['#home-intro','#services','#about-chahos','#contact'].map(sel=>document.querySelector(sel).getBoundingClientRect().top+scrollY));
+   assert.deepEqual(positions,[...positions].sort((a,b)=>a-b),'proper homepage hierarchy');
    await page.locator('.quick-keys a[href="#services"]').click();
-   assert.equal(new URL(page.url()).hash,'#services','quick jump opens services');
+   assert.equal(new URL(page.url()).hash,'#services');
    await page.locator('#services .section-back').click();
-   assert.equal(new URL(page.url()).hash,'#top','back jump returns to top');
-   assert.equal(await page.locator('.industry-tile--featured').count(),2,'featured gym/clinic artwork');
-   assert.equal(await page.locator('.contact-quick-grid').count(),0,'remove redundant contact boxes');
-   assert.equal(await page.locator('.studio-footer-details > div').count(),3,'footer holds the only detailed contact list');
-   const servicesStyle=await page.locator('.service-overview .service-card').first().evaluate(el=>({bg:getComputedStyle(el).backgroundColor,border:getComputedStyle(el).borderRadius}));
-   assert.equal(servicesStyle.border,'0px','editorial service rows have no boxed corners');
-   await page.locator('#solution-preview summary').click();
-   assert.equal(await page.locator('#solution-preview').getAttribute('open'),'','preview is expandable');
-   assert.equal(await page.locator('.preview-tabs [role=tab]').count(),3,'three preview tabs');
-   await page.locator('#preview-tab-1').click();
-   assert.equal(await page.locator('#preview-motion').textContent(),'Play animation','manual selection pauses rotation');
-   assert.equal(await page.locator('#preview-tab-1').getAttribute('aria-selected'),'true');
+   assert.equal(new URL(page.url()).hash,'#top');
+   const dimensions=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,inner:innerWidth}));
+   assert.ok(dimensions.scroll<=dimensions.inner+2,'horizontal overflow at '+width+': '+JSON.stringify(dimensions));
    if(width===390){
-    const columns=await page.locator('.industry-showcase').evaluate(el=>getComputedStyle(el).gridTemplateColumns.trim().split(' ').filter(Boolean).length);
-    assert.equal(columns,2,'two image-led industry columns on iPhone');
+    const first=await page.locator('.quick-keys').boundingBox();
+    assert.ok(first&&first.y<190,'shortcuts immediately under header');
+    const labels=await page.locator('.quick-keys').locator('a').allTextContents();
+    assert.ok(labels.some(v=>v.includes('AI Assistant')));
    }
-   const h=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,inner:window.innerWidth}));
-   assert.ok(h.scroll<=h.inner+2,'homepage horizontal overflow '+width+': '+JSON.stringify(h));
    if(width<=760){
     assert.equal(await page.locator('.mobile-project-cta').isVisible(),true);
     const button=page.locator('.menu');
@@ -73,7 +61,8 @@ const errors=[];
     await page.keyboard.press('Escape');
     assert.equal(await button.getAttribute('aria-expanded'),'false');
    }
-   if(width===390||width===1440)await page.screenshot({path:path.join(__dirname,'..','artifacts',width===390?'premium-mobile.png':'premium-desktop.png'),fullPage:true,animations:'disabled'});
+   if(width===390||width===1440)
+    await page.screenshot({path:path.join(__dirname,'..','artifacts',width===390?'premium-mobile.png':'premium-desktop.png'),fullPage:true,animations:'disabled'});
    await page.close();
   }
   for(const route of ['/services.html','/book-project.html']){
@@ -93,9 +82,10 @@ const errors=[];
   }
   const reduced=await browser.newPage({viewport:{width:390,height:844},reducedMotion:'reduce'});
   await reduced.goto(base+'/index.html',{waitUntil:'networkidle'});
-  assert.equal(await reduced.locator('#preview-motion').textContent(),'Play animation');
+  const behavior=await reduced.evaluate(()=>getComputedStyle(document.documentElement).scrollBehavior);
+  assert.equal(behavior,'auto');
   await reduced.close();
   assert.deepEqual(errors,[]);
-  console.log('Premium UI browser smoke PASS: 3 home sizes, services, booking, keyboard, reduced motion, tabs; screenshots saved.');
+  console.log('Premium UI browser smoke PASS: four-section home, direct links, services/booking, mobile menu, keyboard, reduced motion.');
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;}).finally(()=>new Promise(resolve=>server.close(resolve)));
