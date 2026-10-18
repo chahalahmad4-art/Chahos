@@ -59,7 +59,7 @@ const errors=[];
    assert.equal(await page.locator('#preview-motion').textContent(),'Play animation','manual selection pauses rotation');
    assert.equal(await page.locator('#preview-tab-1').getAttribute('aria-selected'),'true');
    if(width===390){
-    const columns=await page.locator('.industry-showcase').evaluate(el=>getComputedStyle(el).gridTemplateColumns.trim().split(/\\s+/).length);
+    const columns=await page.locator('.industry-showcase').evaluate(el=>getComputedStyle(el).gridTemplateColumns.trim().split(' ').filter(Boolean).length);
     assert.equal(columns,2,'two image-led industry columns on iPhone');
    }
    const h=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,inner:window.innerWidth}));
