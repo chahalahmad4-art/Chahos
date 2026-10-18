@@ -29,13 +29,21 @@ test('homepage retains unique accessible navigation, AI and primary actions',()=
  assert.match(home,/id="selected-work"[^>]*hidden/);
  assert.match(home,/id="client-feedback"[^>]*hidden/);
 });
-test('editorial pathways have exactly three functional links and no fabricated social proof',()=>{
+test('top-level site guide exposes all six routes without scrolling to the end',()=>{
  const html=read('public/index.html');
- const region=html.split('<section class="pathways wrap"')[1]?.split('</section>')[0];
- assert.ok(region,'missing pathways');
- assert.equal((region.match(/class="pathway(?: pathway--highlight)?"/g)||[]).length,3);
- for(const href of ['services.html','ai-projects.html','book-project.html'])assert.ok(region.includes('href="'+href+'"'));
- assert.match(region,/aria-labelledby="pathways-title"/);
+ const begin=html.indexOf('<section id="site-guide"');
+ const hero=html.indexOf('<section class="hero hero-clear hero-connected');
+ assert.ok(begin>0&&begin<hero,'guide must appear before hero');
+ const region=html.slice(begin,hero);
+ assert.match(region,/aria-labelledby="site-guide-title"/);
+ assert.match(region,/aria-label="Explore the website"/);
+ assert.equal((region.match(/class="site-guide-link(?: site-guide-link--action)?"/g)||[]).length,6);
+ for(const href of ['#services','services.html','#case-studies','ai-projects.html','#how-we-work','book-project.html'])
+  assert.ok(region.includes('href="'+href+'"'),'missing site route '+href);
+ for(const anchor of ['services','case-studies','how-we-work'])
+  assert.ok(html.includes('id="'+anchor+'"'),'missing anchor '+anchor);
+ assert.match(html,/class="return-button" href="#site-guide"/);
+ assert.doesNotMatch(html,/class="pathways wrap"/);
  assert.doesNotMatch(region,/(100\+|five stars|guaranteed results|trusted by thousands)/i);
 });
 test('no new remote assets or tracking, and reduced motion is honored',()=>{
