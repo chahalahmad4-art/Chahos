@@ -1,9 +1,9 @@
 name: AI Lab regression and safety
 on:
   push:
-    paths: ['public/assistant/**', 'projects/agency-assistant/**', 'api/**', 'public/ai-lab/**', 'projects/ai-lab/**', '.github/workflows/ai-lab.yml']
+    paths: ['public/assistant/**', 'public/booking*', 'public/book-project.html', 'public/enquiry-client.mjs', 'projects/agency-assistant/**', 'api/**', 'public/ai-lab/**', 'projects/ai-lab/**', '.github/workflows/ai-lab.yml']
   pull_request:
-    paths: ['public/assistant/**', 'projects/agency-assistant/**', 'api/**', 'public/ai-lab/**', 'projects/ai-lab/**', '.github/workflows/ai-lab.yml']
+    paths: ['public/assistant/**', 'public/booking*', 'public/book-project.html', 'public/enquiry-client.mjs', 'projects/agency-assistant/**', 'api/**', 'public/ai-lab/**', 'projects/ai-lab/**', '.github/workflows/ai-lab.yml']
 permissions:
   contents: read
 jobs:
@@ -21,3 +21,14 @@ jobs:
         with:
           name: ai-lab-evaluations
           path: evaluation-report.json
+
+  crm-browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm install --no-save --no-package-lock playwright@1.58.2
+      - run: npx playwright install --with-deps chromium
+      - run: node scripts/crm-browser-smoke.cjs

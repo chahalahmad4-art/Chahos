@@ -1,10 +1,10 @@
-import {createHash} from 'node:crypto';
 import {chat,validateChat,validateEnquiry,knowledgeVersion} from './engine.mjs';
 import {redisClient,privateHash,budget,telemetry} from './storage.mjs';
 import {saveEnquiry} from './hubspot.mjs';
 export function readiness(env){
  const storage=!!(env.UPSTASH_REDIS_REST_URL?.startsWith('https://')&&env.UPSTASH_REDIS_REST_TOKEN&&env.ASSISTANT_HASH_SECRET?.length>=32&&Number.isInteger(Number(env.ASSISTANT_DAILY_REQUEST_LIMIT))&&Number(env.ASSISTANT_DAILY_REQUEST_LIMIT)>0&&Number(env.ASSISTANT_DAILY_REQUEST_LIMIT)<=10000);
- return {chat:!!(storage&&env.ASSISTANT_CHAT_ENABLED==='true'&&env.GEMINI_API_KEY&&env.GEMINI_MODEL),crm:!!(storage&&env.ASSISTANT_CRM_ENABLED==='true'&&env.HUBSPOT_PRIVATE_APP_TOKEN),knowledgeVersion};
+ const crmApproved=env.VERCEL_ENV==='production'?env.ASSISTANT_CRM_PRODUCTION_APPROVED==='true':env.VERCEL_ENV==='preview'?env.ASSISTANT_CRM_TARGET==='test':true;
+ return {chat:!!(storage&&env.ASSISTANT_CHAT_ENABLED==='true'&&env.GEMINI_API_KEY&&env.GEMINI_MODEL),crm:!!(crmApproved&&storage&&env.ASSISTANT_CRM_ENABLED==='true'&&env.HUBSPOT_PRIVATE_APP_TOKEN),knowledgeVersion};
 }
 export function createHandler({env=process.env,fetcher=fetch,redisFactory=redisClient,answer=chat,save=saveEnquiry}={}){
  return async(req,res)=>{
@@ -14,7 +14,7 @@ export function createHandler({env=process.env,fetcher=fetch,redisFactory=redisC
  try{
   if(req.method==='GET')return send(200,readiness(env));
   if(req.method!=='POST'){res.setHeader('Allow','GET, POST');return send(405,{error:'Method not allowed.'});}
-  const origin=env.ASSISTANT_ORIGIN||'https://chahosagency.vercel.app';
+  const origin=env.VERCEL_ENV==='preview'&&env.VERCEL_URL?'https://'+env.VERCEL_URL:(env.ASSISTANT_ORIGIN||'https://chahosagency.vercel.app');
   if(req.headers.origin!==origin)return send(403,{error:'Open the assistant on the agency website.'});
   if(!String(req.headers['content-type']).startsWith('application/json'))return send(415,{error:'Use JSON.'});
   let body=req.body;
@@ -29,7 +29,7 @@ export function createHandler({env=process.env,fetcher=fetch,redisFactory=redisC
   const ip=String(req.headers['x-vercel-forwarded-for']||req.socket?.remoteAddress||'unknown').split(',')[0].trim();
   if(!await budget(redis,env,ip,action)){res.setHeader('Retry-After','3600');return send(429,{status:'limited',error:'The usage limit was reached. Please contact Ahmad directly.'});}
   if(action==='chat'){const out=await answer(body,env,fetcher);usage=out.usage;const {usage:_,...publicResult}=out;return send(200,publicResult);}
-  const key='chahos:enquiry:'+privateHash(lead.requestId,env),fingerprint=createHash('sha256').update(JSON.stringify(lead)).digest('hex');
+  const key='chahos:enquiry:'+privateHash(lead.requestId,env),fingerprint=privateHash(JSON.stringify(lead),env);
   const lock=await redis(['SET',key,JSON.stringify({fingerprint,status:'pending'}),'NX','EX','604800']);
   if(lock!=='OK'){
    const existing=JSON.parse(await redis(['GET',key])||'null');
@@ -39,6 +39,7 @@ export function createHandler({env=process.env,fetcher=fetch,redisFactory=redisC
   }
   // Lock remains pending if a remote write times out. Never blindly replay a CRM write.
   const result=await save(lead,env,fetcher);
+  if(result?.status!=='received'||result.reference!==lead.requestId)throw new Error('INVALID_CRM_ACK');
   await redis(['SET',key,JSON.stringify({fingerprint,status:'received'}),'EX','604800']);
   return send(200,result);
  }catch{return send(502,{status:'unavailable',error:action==='enquiry'?'We could not verify delivery. Keep your reference and contact Ahmad before submitting again.':'The assistant is temporarily unavailable. Please contact Ahmad or try the offline example.'});}

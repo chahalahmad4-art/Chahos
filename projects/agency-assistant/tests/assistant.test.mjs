@@ -111,3 +111,49 @@ test('CTA instructions do not tell the model to print raw page paths or claim au
  assert.match(p,/website adds its own clickable link/);
  assert.match(p,/exaggerated colloquial flattery/);
 });
+
+
+test('production CRM requires separate approval without disabling chat',()=>{
+ const production={...env,VERCEL_ENV:'production'};
+ assert.equal(readiness(production).crm,false);assert.equal(readiness(production).chat,true);
+ assert.equal(readiness({...production,ASSISTANT_CRM_PRODUCTION_APPROVED:'true'}).crm,true);
+ assert.equal(readiness({...env,VERCEL_ENV:'preview'}).crm,false);
+ assert.equal(readiness({...env,VERCEL_ENV:'preview',ASSISTANT_CRM_TARGET:'test'}).crm,true);
+});
+test('preview accepts only its exact deployment origin',async()=>{
+ const handler=createHandler({env:{...env,VERCEL_ENV:'preview',VERCEL_URL:'test.vercel.app'},redisFactory:()=>fakeRedis(),answer:async()=>({status:'answered'})});
+ assert.equal((await request(handler,{action:'chat',message:'hi',processingConsent:true})).code,403);
+ assert.equal((await request(handler,{action:'chat',message:'hi',processingConsent:true},{origin:'https://test.vercel.app'})).code,200);
+});
+test('bad CRM acknowledgement cannot mark request received',async()=>{
+ const handler=createHandler({env,redisFactory:()=>fakeRedis(),save:async()=>({status:'received',reference:'wrong'})});
+ assert.equal((await request(handler,{action:'enquiry',...lead})).code,502);
+});
+test('concurrent duplicate creates only one remote enquiry',async()=>{
+ const redis=fakeRedis();let calls=0;
+ const handler=createHandler({env,redisFactory:()=>redis,save:async()=>{calls++;await new Promise(r=>setTimeout(r,10));return {status:'received',reference:lead.requestId};}});
+ const results=await Promise.all([request(handler,{action:'enquiry',...lead}),request(handler,{action:'enquiry',...lead})]);
+ assert.equal(calls,1);assert.deepEqual(results.map(r=>r.code).sort(),[200,409]);
+});
+function mockCRM(responses,calls){return async(url,options)=>{calls.push({url,...options,body:options.body?JSON.parse(options.body):undefined});const response=responses.shift();if(response instanceof Error)throw response;return {ok:response.status<400,status:response.status,json:async()=>response.data};};}
+const ok=data=>({status:200,data});
+test('new fictional contact and associated note succeed',async()=>{
+ const calls=[];await saveEnquiry(lead,env,mockCRM([ok({results:[]}),ok({id:'contact'}),ok({id:'note'})],calls));
+ assert.equal(calls.length,3);assert.equal(calls[1].body.properties.email,lead.email);assert.equal(calls[2].body.associations[0].to.id,'contact');
+});
+test('contact create conflict re-reads instead of overwriting',async()=>{
+ const calls=[];await saveEnquiry(lead,env,mockCRM([ok({results:[]}),{status:409,data:{}},ok({results:[{id:'existing'}]}),ok({id:'note'})],calls));
+ assert.equal(calls.length,4);assert.ok(calls.every(c=>c.method==='POST'));assert.equal(calls[3].body.associations[0].to.id,'existing');
+});
+for(const response of [{status:500,data:{}},ok({}),new DOMException('Timeout','TimeoutError')])test('note error or timeout never acknowledges success '+String(response.status||response.name),async()=>{
+ await assert.rejects(saveEnquiry(lead,env,mockCRM([ok({results:[{id:'existing'}]}),response],[])));
+});
+const dealEnv={...env,HUBSPOT_ENQUIRY_MODE:'deal',HUBSPOT_ENQUIRY_PIPELINE_ID:'default',HUBSPOT_ENQUIRY_STAGE_ID:'new'};
+test('deal mode uses validated native pipeline and existing contact',async()=>{
+ const calls=[];const out=await saveEnquiry(lead,dealEnv,mockCRM([ok({stages:[{id:'new',metadata:{isClosed:'false',probability:'0'}}]}),ok({results:[{id:'contact'}]}),ok({id:'deal'})],calls));
+ assert.equal(calls.length,3);assert.equal(calls[0].method,'GET');assert.equal(calls[2].body.properties.dealstage,'new');assert.equal(calls[2].body.associations[0].types[0].associationTypeId,3);
+ assert.match(calls[2].body.properties.description,/Not marketing consent/);assert.equal(out.reference,lead.requestId);
+});
+test('invalid or closed pipeline prevents all contact writes',async()=>{
+ for(const stages of [[],[{id:'new',metadata:{isClosed:'true'}}]]){const calls=[];await assert.rejects(saveEnquiry(lead,dealEnv,mockCRM([ok({stages})],calls)));assert.equal(calls.length,1);}
+});
