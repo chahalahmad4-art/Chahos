@@ -90,3 +90,24 @@ test('Gemini response exposes only known optional project next step',async()=>{
  const normal=await chat({message:'shu services 3andkon'},env,reply({answer:'Mneshteghel websites',status:'answered',sourceIds:['agency']}));
  assert.equal(normal.nextStep,null);
 });
+
+
+test('explicit ready-to-start request reliably returns a CTA even if Gemini forgets the optional field',async()=>{
+ const result=await chat({message:'Yalla nballesh, shu lezem e3mol?',history:[
+  {role:'user',content:'3ande resto b Trablos w bade website fi menu online'},
+  {role:'assistant',content:'Badak l order men l website aw WhatsApp?'},
+  {role:'user',content:'Bade online ordering w dashboard'}]},env,
+  reply({answer:'Tamem, fik tekbos 3a Start Your Project w ba3den enta btodghat Send 3a WhatsApp.',status:'answered',sourceIds:['contact']}));
+ assert.equal(result.nextStep,'project_request');
+});
+test('explicit Lebanese-script readiness also shows the safe link, but casual enquiries do not',async()=>{
+ const model=reply({answer:'Fina ne7ke b website lal mat3am.',status:'answered',sourceIds:['websites']});
+ assert.equal((await chat({message:'يلا نبلش',language:'ar-LB'},env,model)).nextStep,'project_request');
+ assert.equal((await chat({message:'bade website la restaurant'},env,model)).nextStep,null);
+});
+test('CTA instructions do not tell the model to print raw page paths or claim automatic submission',()=>{
+ const p=buildAgencyPrompt('arabizi',salesTurnSignals('Yalla nballesh'));
+ assert.match(p,/do NOT print raw \/book-project.html paths/);
+ assert.match(p,/website adds its own clickable link/);
+ assert.match(p,/exaggerated colloquial flattery/);
+});
