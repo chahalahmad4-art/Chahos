@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {chat,validateChat,validateEnquiry,offlineAnswer} from '../engine.mjs';
+import {chat,validateChat,validateEnquiry,offlineAnswer,conversationLanguage,buildAgencyPrompt} from '../engine.mjs';
 import {createHandler,readiness} from '../handler.mjs';
 import {saveEnquiry} from '../hubspot.mjs';
 import {budget,telemetry} from '../storage.mjs';
@@ -25,3 +25,33 @@ test('existing CRM contact is not overwritten; note is HTML-escaped',async()=>{c
 test('failed CRM lookup never creates a guessed contact',async()=>{let calls=0;await assert.rejects(saveEnquiry(lead,env,async()=>{calls++;return {ok:false,status:401,json:async()=>({})};}));assert.equal(calls,1);});
 test('budget uses hashed IP and atomic expiring counters',async()=>{await budget(async cmd=>{assert.equal(cmd[0],'EVAL');assert.match(cmd[1],/EXPIRE/);assert.ok(!JSON.stringify(cmd).includes('192.0.2.123'));return 1;},env,'192.0.2.123','chat');});
 test('telemetry excludes raw data and expires',async()=>{await telemetry(async cmd=>{assert.ok(!JSON.stringify(cmd).includes('secret@example.com'));assert.match(cmd[1],/604800/);return 1;},{action:'chat',status:'answered',latencyMs:2,query:'secret@example.com',email:'secret@example.com'});});
+
+test('short follow-ups keep Lebanese conversation language',()=>{
+ assert.equal(conversationLanguage('ok','auto',[{role:'user',content:'bade website la resto'}]),'arabizi');
+ assert.equal(conversationLanguage('ee','auto',[{role:'user',content:'بدي موقع لمطعم'}]),'ar-LB');
+ assert.equal(conversationLanguage('ok','en',[{role:'user',content:'بدي موقع لمطعم'}]),'en');
+ assert.equal(conversationLanguage('How much?','auto',[{role:'user',content:'بدي موقع لمطعم'}]),'en');
+});
+test('prompt gives real Lebanese sales examples and guards against invented promises',()=>{
+ const prompt=buildAgencyPrompt('arabizi');
+ assert.match(prompt,/tokhsous/);
+ assert.match(prompt,/delivery orders/);
+ assert.match(prompt,/one specific next clarifying question/i);
+ assert.match(prompt,/Never quote or estimate a number/);
+ assert.match(prompt,/no tools or CRM access/i);
+ assert.match(prompt,/contact page/);
+ assert.match(prompt,/VERIFIED LIBRARY/);
+ assert.match(buildAgencyPrompt('ar-LB'),/بيتحدّدوا/);
+ assert.match(buildAgencyPrompt('en'),/Clear, friendly/);
+});
+test('chat system instructions use matching language and previous project details',async()=>{
+ let saw=false;
+ await chat({message:'okay',history:[{role:'user',content:'bade website la ma7al tyeb'}]},env,async(_url,options)=>{
+  const body=JSON.parse(options.body);saw=true;
+  assert.match(body.messages[0].content,/Reply in arabizi/);
+  assert.match(body.messages[1].content,/ma7al tyeb/);
+  assert.equal(body.tools,undefined);
+  return reply({answer:'Akeed! Fina ne7ke b website lal ma7al. Badak bas catalogue aw online orders?',status:'answered',sourceIds:['websites']})();
+ });
+ assert.ok(saw);
+});
