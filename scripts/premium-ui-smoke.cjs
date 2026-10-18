@@ -31,7 +31,11 @@ const errors=[];
    const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1});
    page.on('pageerror',e=>errors.push('home '+width+': '+e.message));
    await page.goto(base+'/index.html',{waitUntil:'networkidle'});
-   assert.equal(await page.locator('main > section').count(),4,'four homepage sections at '+width);
+   assert.equal(await page.locator('main > section').count(),6,'six concise homepage sections at '+width);
+   assert.equal(await page.locator('.trust-item').count(),3,'three featured portfolio entries');
+   assert.equal(await page.locator('#how-we-work .trust-steps li').count(),4,'four process steps');
+   assert.ok(await page.locator('.quick-keys a[href="work.html"]').count(),'Portfolio is a real page');
+
    assert.equal(await page.locator('.quick-keys a').count(),8,'quick links to separate pages');
    assert.equal(await page.locator('.service-overview .service-card').count(),4,'four clear service cards');
    assert.equal(await page.locator('#about-chahos .story-book').count(),1,'green Meet Chahos CTA');
@@ -43,7 +47,7 @@ const errors=[];
    assert.equal(typography.style,'normal','headline is no longer artificial italic');
    assert.ok(!/Georgia/i.test(typography.family),'service heading uses clean sans');
 
-   const positions=await page.evaluate(()=>['#home-intro','#services','#about-chahos','#contact'].map(sel=>document.querySelector(sel).getBoundingClientRect().top+scrollY));
+   const positions=await page.evaluate(()=>['#home-intro','#services','#about-chahos','#selected-work','#how-we-work','#contact'].map(sel=>document.querySelector(sel).getBoundingClientRect().top+scrollY));
    assert.deepEqual(positions,[...positions].sort((a,b)=>a-b),'proper homepage hierarchy');
    await page.locator('.quick-keys a[href="#contact"]').filter({hasText:'Who’s Chahos'}).click();
    assert.equal(new URL(page.url()).hash,'#contact','Who’s Chahos opens named contact details');
@@ -85,6 +89,26 @@ const errors=[];
      assert.equal(await page.locator('#industry option[value="fitness"]').count(),1);
      assert.ok((await page.locator('#project-form').textContent()).includes('Continue to WhatsApp'));
     }else assert.equal(await page.locator('.experience-card').count(),8);
+    await page.close();
+   }
+  }
+  for(const route of ['/work.html','/ar.html','/services-ar.html']){
+   for(const width of [390,1440]){
+    const page=await browser.newPage({viewport:{width,height:900}});
+    page.on('pageerror',e=>errors.push(route+' '+width+': '+e.message));
+    await page.goto(base+route,{waitUntil:'domcontentloaded'});
+    const d=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,inner:innerWidth}));
+    assert.ok(d.scroll<=d.inner+2,'new route has horizontal overflow '+route+' '+width+': '+JSON.stringify(d));
+    if(route==='/work.html'){
+     assert.equal(await page.locator('.trust-case').count(),4,'verified statuses + technical demo');
+     await page.getByRole('link',{name:'← Home'}).click();
+     assert.ok(page.url().endsWith('/index.html'));
+    }else{
+     assert.equal(await page.locator('html').getAttribute('dir'),'rtl');
+     const n=await page.locator('html').getAttribute('lang');
+     assert.equal(n,'ar-LB');
+     if(route==='/services-ar.html')assert.equal(await page.locator('.ar-example').count(),8);
+    }
     await page.close();
    }
   }
