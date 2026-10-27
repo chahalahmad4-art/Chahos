@@ -4,6 +4,8 @@ on:
     paths:
       - 'public/index.html'
       - 'public/services.html'
+      - 'public/samples/**'
+      - 'public/booking.js'
       - 'public/book-project.html'
       - 'public/premium.css'
       - 'public/studio-typography.css'
@@ -18,6 +20,8 @@ on:
     paths:
       - 'public/index.html'
       - 'public/services.html'
+      - 'public/samples/**'
+      - 'public/booking.js'
       - 'public/book-project.html'
       - 'public/premium.css'
       - 'public/studio-typography.css'
