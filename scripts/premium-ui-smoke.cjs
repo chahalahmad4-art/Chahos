@@ -129,6 +129,63 @@ const errors=[];
     await page.close();
    }
   }
+  // Navigation destinations and sample layout are checked in the rendered DOM.
+  for(const width of [390,1440]){
+   const page=await browser.newPage({viewport:{width,height:844}});
+   page.on('pageerror',e=>errors.push('journey '+width+': '+e.message));
+   await page.goto(base+'/index.html');
+   assert.equal(await page.locator('.quick-keys a[href="book-project.html"]').innerText(),'Start project ↗');
+   for(const [card,target,title] of [
+    ['02','#business-systems','Bring the work together.'],
+    ['04','#brand-creative','Make it unmistakably yours.']
+   ]){
+    await page.goto(base+'/index.html');
+    await page.locator('.service-card').filter({hasText:card+' / SERVICE'}).click();
+    await page.waitForURL('**/services.html'+target);
+    assert.equal(await page.locator(target+' h3').innerText(),title);
+   }
+   for(const sector of ['fitness','clinic','architecture','creative','fashion','pharmacy','food','gifts']){
+    await page.goto(base+'/samples/'+sector+'/',{waitUntil:'networkidle'});
+    assert.ok(await page.locator('#experience-content').innerText(),sector+' renders its interaction');
+    assert.equal(await page.locator('img').evaluateAll(imgs=>imgs.filter(i=>i.complete&&i.naturalWidth===0).length),0,sector+' images load');
+    const dims=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,inner:innerWidth}));
+    assert.ok(dims.scroll<=dims.inner+2,sector+' overflow at '+width+': '+JSON.stringify(dims));
+    if(sector==='fitness'){
+     await page.getByRole('link',{name:'Class schedule',exact:true}).click();
+     assert.equal(new URL(page.url()).hash,'#class-schedule');
+     assert.ok((await page.locator('#class-schedule').innerText()).includes('Tuesday'));
+     await page.locator('[data-plan="0"]').click();
+     await page.locator('#duration').selectOption('3');
+     assert.equal(await page.locator('#plan-total').innerText(),'$105');
+     await page.locator('#prepare-plan').click();
+     assert.ok((await page.locator('#dialog-body').innerText()).includes('3 months · $105'));
+     await page.getByRole('button',{name:'Close dialog',exact:true}).click();
+    }
+   }
+   await page.goto(base+'/book-project.html?industry=fitness');
+   assert.equal(await page.locator('#industry').inputValue(),'fitness');
+   // Capture the outgoing URL locally: no WhatsApp page opens or message is sent.
+   await page.evaluate(()=>{window.open=(url)=>{window.__preparedWhatsApp=url;return null;};});
+   await page.locator('#full-name').fill('Website QA');
+   await page.locator('#phone').fill('123');
+   await page.locator('#email').fill('qa@example.com');
+   await page.locator('#service').selectOption({label:'Website or online store'});
+   await page.locator('#details').fill('Fictional project for the local website check.');
+   await page.getByRole('button',{name:'Continue to WhatsApp'}).click();
+   assert.equal(await page.locator('#handoff').isVisible(),false,'invalid phone is blocked');
+   await page.locator('#phone').fill('+961 70 000 000');
+   await page.getByRole('button',{name:'Continue to WhatsApp'}).click();
+   assert.equal(await page.locator('#handoff').isVisible(),true);
+   const outgoing=await page.evaluate(()=>window.__preparedWhatsApp);
+   const wa=new URL(outgoing);
+   assert.equal(wa.hostname,'wa.me');
+   assert.equal(wa.pathname,'/96171727712');
+   for(const text of ['Website QA','Gym & fitness','Website or online store','Fictional project'])
+    assert.ok(wa.searchParams.get('text').includes(text),'prepared request includes '+text);
+   assert.equal(await page.locator('#whatsapp-fallback').getAttribute('href'),outgoing);
+   assert.ok((await page.locator('#handoff').innerText()).includes('It has not been sent yet'));
+   await page.close();
+  }
   const reduced=await browser.newPage({viewport:{width:390,height:844},reducedMotion:'reduce'});
   await reduced.goto(base+'/index.html',{waitUntil:'networkidle'});
   const behavior=await reduced.evaluate(()=>getComputedStyle(document.documentElement).scrollBehavior);
